@@ -76,7 +76,9 @@ const Navbar = () => {
                   key={link.to}
                   href={link.to}
                   onClick={(e) => handleNavClick(e, link.to)}
-                  className="hover:text-amber-400 transition-colors duration-300 font-medium text-sm tracking-widest uppercase"
+                  className={`hover:text-amber-400 transition-colors duration-300 font-medium tracking-widest ${
+                    currentLang === 'ar' ? 'text-base' : 'text-sm uppercase'
+                  }`}
                 >
                   {link.label}
                 </a>

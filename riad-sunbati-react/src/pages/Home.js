@@ -83,7 +83,7 @@ const Home = () => {
   return (
     <div>
       {/* Hero Section */}
-      <section ref={heroRef} id="home" className="relative min-h-screen flex items-center justify-center pt-20 cursor-pointer">
+      <section ref={heroRef} id="home" className="relative min-h-[100svh] md:min-h-screen flex items-center justify-center pt-20 pb-10 cursor-pointer">
         {/* 3D Oud Scene */}
         <div className="pointer-events-none">
           <OudScene />
@@ -94,13 +94,13 @@ const Home = () => {
         <div className="absolute inset-0 bg-gradient-to-b from-background via-transparent to-background"></div>
 
         <div className="relative z-10 max-w-5xl mx-auto px-4 text-center pointer-events-auto">
-          <h1 className="font-heading text-5xl md:text-7xl mb-6 gold-text animate-fade-in tracking-wide">
+          <h1 className="font-heading text-3xl sm:text-5xl md:text-7xl mb-4 md:mb-6 gold-text animate-fade-in tracking-wide">
             {t('hero.title')}
           </h1>
-          <p className="font-arabic text-4xl md:text-5xl mb-8 text-primary/90 tracking-wider">
+          <p className="font-arabic text-3xl sm:text-5xl md:text-6xl mb-6 md:mb-8 text-primary/90 tracking-wider">
             {t('hero.arabicTitle')}
           </p>
-          <p className="text-xl md:text-2xl text-muted-foreground mb-12 leading-relaxed max-w-3xl mx-auto font-light tracking-wide">
+          <p className="text-base sm:text-xl md:text-2xl text-muted-foreground mb-8 md:mb-12 leading-relaxed max-w-3xl mx-auto font-light tracking-wide">
             {t('hero.subtitle')}
           </p>
           
@@ -109,18 +109,18 @@ const Home = () => {
             ✨ Move your mouse or click to create musical notes ✨
           </div>
           
-          <div className="flex gap-6 justify-center flex-wrap">
+          <div className="flex gap-4 md:gap-6 justify-center flex-wrap">
             <a
               href="#biography"
               onClick={(e) => { e.preventDefault(); document.querySelector('#biography')?.scrollIntoView({ behavior: 'smooth' }); }}
-              className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-4 rounded-lg font-bold text-lg transition-all duration-300 shadow-lg hover:shadow-primary/50 hover:-translate-y-1"
+              className="bg-primary hover:bg-primary/90 text-primary-foreground px-6 md:px-8 py-3 md:py-4 rounded-lg font-bold text-base md:text-lg transition-all duration-300 shadow-lg hover:shadow-primary/50 hover:-translate-y-1"
             >
               {t('hero.learnMore')}
             </a>
             <a
               href="#compositions"
               onClick={(e) => { e.preventDefault(); document.querySelector('#compositions')?.scrollIntoView({ behavior: 'smooth' }); }}
-              className="border-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground px-8 py-4 rounded-lg font-bold text-lg transition-all duration-300 hover:-translate-y-1"
+              className="border-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground px-6 md:px-8 py-3 md:py-4 rounded-lg font-bold text-base md:text-lg transition-all duration-300 hover:-translate-y-1"
             >
               {t('hero.explore')}
             </a>

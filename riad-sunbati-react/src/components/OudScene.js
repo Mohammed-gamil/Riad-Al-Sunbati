@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
+import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader';
 
 const OudScene = () => {
   const containerRef = useRef(null);
@@ -29,15 +30,38 @@ const OudScene = () => {
     camera.position.z = 5;
 
     const loader = new GLTFLoader();
+    
+    // Setup DRACO loader for compressed models
+    const dracoLoader = new DRACOLoader();
+    dracoLoader.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.6/');
+    dracoLoader.setDecoderConfig({ type: 'js' });
+    loader.setDRACOLoader(dracoLoader);
+    
+    // Add more detailed logging
+    console.log('Attempting to load oud.glb...');
+    
+    let model = null;
+    
     loader.load(
         '/oud.glb', // Path to model in public folder
         function (gltf) {
-            const model = gltf.scene;
-            model.scale.set(5, 5, 5); // Adjust scale as needed
-            model.position.y = -3; // Adjust position
+            console.log('Model loaded successfully:', gltf);
+            model = gltf.scene;
+            
+            // Function to update model based on screen size
+            const updateModelForScreenSize = () => {
+                const isMobile = window.innerWidth < 768;
+                const scale = isMobile ? 4 : 5;
+                model.scale.set(scale, scale, scale);
+                model.position.y = isMobile ? -2 : -3;
+                model.position.x = isMobile ? 0 : 0;
+            };
+            
+            updateModelForScreenSize();
             model.rotation.y = Math.PI / 4;
             
             scene.add(model);
+            console.log('Model added to scene');
             
             // Animation function
             const animateModel = function() {
@@ -51,18 +75,37 @@ const OudScene = () => {
             animateModel();
         },
         function (xhr) {
-            console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+            if (xhr.lengthComputable) {
+                const percentComplete = (xhr.loaded / xhr.total * 100).toFixed(2);
+                console.log(`Loading: ${percentComplete}% (${xhr.loaded} / ${xhr.total} bytes)`);
+            } else {
+                console.log(`Loading: ${xhr.loaded} bytes loaded`);
+            }
         },
         function (error) {
-            console.error('An error happened', error);
+            console.error('Error loading GLB file:', error);
+            console.error('Error details:', {
+                message: error.message,
+                stack: error.stack,
+                type: error.type
+            });
         }
     );
 
     // Handle Resize
     const handleResize = () => {
+        const isMobile = window.innerWidth < 768;
         camera.aspect = window.innerWidth / window.innerHeight;
         camera.updateProjectionMatrix();
         renderer.setSize(window.innerWidth, window.innerHeight);
+        
+        // Update model position and scale if it exists
+        if (model) {
+            const scale = isMobile ? 1.5 : 5;
+            model.scale.set(scale, scale, scale);
+            model.position.y = isMobile ? -0.5 : -3;
+            model.position.x = isMobile ? 0 : 0;
+        }
     };
     
     window.addEventListener('resize', handleResize);
@@ -89,7 +132,7 @@ const OudScene = () => {
         width: '100%',
         height: '100%',
         zIndex: 0,
-        opacity: 0.8
+        opacity: 0.9
       }}
     />
   );
