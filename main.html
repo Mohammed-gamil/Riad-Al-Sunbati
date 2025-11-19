@@ -7,8 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     
     <!-- Three.js for 3D Element -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <!-- GLTFLoader for loading real 3D models (.glb/.gltf) -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
     
     <!-- Lucide Icons -->
@@ -1040,10 +1039,10 @@
 
             const loader = new THREE.GLTFLoader();
             loader.load(
-                'oud.glb', // Replace with your model path
+                './oud.glb', // Replace with your model path
                 function (gltf) {
                     const model = gltf.scene;
-                    model.scale.set(5, 5, 5); // Adjust scale as needed
+                    model.scale.set(50, 50, 50); // Adjust scale as needed
                     model.position.y = -3; // Adjust position
                     model.rotation.y = Math.PI / 4;
                     
