@@ -1,0 +1,1368 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Riad Al Sunbati | The Genius of Arab Music</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Three.js for 3D Element -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- GLTFLoader for loading real 3D models (.glb/.gltf) -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        /* Custom Fonts */
+        .font-heading { font-family: 'Playfair Display', serif; }
+        .font-arabic { font-family: 'Amiri', serif; }
+        .font-body { font-family: 'Lato', sans-serif; }
+
+        /* Custom Animations */
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        .animate-float { animation: float 6s ease-in-out infinite; }
+        
+        .record-spin {
+            animation: spin 10s linear infinite;
+        }
+        @keyframes spin {
+            100% { transform: rotate(360deg); }
+        }
+        
+        .paused { animation-play-state: paused; }
+
+        /* Vintage Texture Overlay */
+        .vintage-overlay {
+            background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23d4af37' fill-opacity='0.05' fill-rule='evenodd'/%3E%3C/svg%3E");
+        }
+
+        .gold-text {
+            background: linear-gradient(to right, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .singer-card:hover .singer-icon {
+            transform: scale(1.1) rotate(5deg);
+            color: #d97706;
+        }
+        
+        .score-card {
+            background: #1e293b;
+            border: 1px solid rgba(146, 64, 14, 0.2);
+            transition: all 0.3s ease;
+        }
+        .score-card:hover {
+            border-color: #d97706;
+            transform: translateY(-5px);
+        }
+
+        #canvas-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0; /* Behind text */
+            opacity: 0.8;
+        }
+
+        /* Floating Music Notes */
+        .music-note {
+            position: absolute;
+            pointer-events: none;
+            z-index: 50;
+            animation: floatUp 2s ease-out forwards;
+            text-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            font-family: 'Amiri', serif;
+        }
+
+        @keyframes floatUp {
+            0% {
+                opacity: 0;
+                transform: translateY(0) scale(0.5) rotate(0deg);
+            }
+            20% {
+                opacity: 1;
+                transform: translateY(-20px) scale(1.2) rotate(10deg);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-100px) scale(0.8) rotate(45deg);
+            }
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-200 font-body overflow-x-hidden relative">
+
+    <!-- Background Ambient Effects -->
+    <div class="fixed inset-0 vintage-overlay pointer-events-none z-0 opacity-30"></div>
+    <div class="fixed top-0 left-0 w-full h-full bg-gradient-to-br from-slate-950 via-slate-900 to-amber-950 opacity-90 -z-10"></div>
+
+    <!-- Navigation -->
+    <nav class="fixed w-full z-50 bg-slate-900/80 backdrop-blur-md border-b border-amber-700/30 transition-all duration-300" id="navbar">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <div class="flex-shrink-0 flex items-center gap-3">
+                    <!-- Oud Icon SVG -->
+                    <div class="bg-amber-600 p-2 rounded-full text-slate-900">
+                        <i data-lucide="music" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <span class="font-heading text-2xl text-amber-500 tracking-wide font-bold block leading-none">Riad Al Sunbati</span>
+                        <span class="font-arabic text-sm text-slate-400 tracking-widest">رياض السنباطي</span>
+                    </div>
+                </div>
+                
+                <!-- Desktop Menu -->
+                <div class="hidden md:block">
+                    <div class="ms-10 flex items-baseline gap-8">
+                        <a href="#home" class="hover:text-amber-400 transition-colors duration-300 font-medium text-sm tracking-widest uppercase" data-i18n="nav.home">Home</a>
+                        <a href="#biography" class="hover:text-amber-400 transition-colors duration-300 font-medium text-sm tracking-widest uppercase" data-i18n="nav.bio">Biography</a>
+                        <a href="#singer" class="hover:text-amber-400 transition-colors duration-300 font-medium text-sm tracking-widest uppercase" data-i18n="nav.singer">The Singer</a>
+                        <a href="#umm-kulthum" class="hover:text-amber-400 transition-colors duration-300 font-medium text-sm tracking-widest uppercase" data-i18n="nav.muse">The Muse</a>
+                        <a href="#collaborations" class="hover:text-amber-400 transition-colors duration-300 font-medium text-sm tracking-widest uppercase" data-i18n="nav.legacy">Legacy</a>
+                        <a href="#compositions" class="hover:text-amber-400 transition-colors duration-300 font-medium text-sm tracking-widest uppercase text-amber-500 font-bold" data-i18n="nav.compositions">Compositions</a>
+                        <button onclick="toggleLanguage()" class="text-amber-500 hover:text-white transition-colors font-bold text-sm border border-amber-500/50 px-3 py-1 rounded hover:bg-amber-500/10 ml-4">
+                            <span id="lang-btn-text">AR</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Mobile menu button -->
+                <div class="md:hidden">
+                    <button id="mobile-menu-btn" class="text-amber-500 hover:text-white focus:outline-none">
+                        <i data-lucide="menu" class="w-8 h-8"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- Mobile Menu Panel -->
+        <div id="mobile-menu" class="hidden md:hidden bg-slate-900 border-b border-amber-800">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                <a href="#home" class="block px-3 py-2 text-base font-medium hover:text-amber-400" data-i18n="nav.home">Home</a>
+                <a href="#biography" class="block px-3 py-2 text-base font-medium hover:text-amber-400" data-i18n="nav.bio">Biography</a>
+                <a href="#singer" class="block px-3 py-2 text-base font-medium hover:text-amber-400" data-i18n="nav.singer">The Singer</a>
+                <a href="#umm-kulthum" class="block px-3 py-2 text-base font-medium hover:text-amber-400" data-i18n="nav.muse">The Muse</a>
+                <a href="#collaborations" class="block px-3 py-2 text-base font-medium hover:text-amber-400" data-i18n="nav.legacy">Legacy</a>
+                <a href="#compositions" class="block px-3 py-2 text-base font-medium hover:text-amber-400 text-amber-500" data-i18n="nav.compositions">Compositions</a>
+                <button onclick="toggleLanguage()" class="block w-full text-start px-3 py-2 text-base font-medium text-amber-500 hover:text-white border-t border-amber-800/50 mt-2 pt-2">
+                    <span id="mobile-lang-btn-text">Switch to Arabic</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section with 3D Element -->
+    <section id="home" class="relative h-screen flex items-center justify-center overflow-hidden pt-20">
+        <!-- 3D Canvas Container -->
+        <div id="canvas-container"></div>
+        
+        <div class="relative z-10 text-center px-4 max-w-4xl mx-auto pointer-events-none">
+            <div class="pointer-events-auto">
+                <span class="inline-block py-1 px-3 rounded-full bg-amber-900/30 border border-amber-700/50 text-amber-400 text-xs font-bold tracking-widest uppercase mb-6 animate-float">
+                    1906 — 1981
+                </span>
+                <h1 class="text-5xl md:text-8xl font-heading font-bold mb-4 leading-tight text-amber-100 drop-shadow-lg">
+                    <span data-i18n="hero.genius">The Genius of</span> <br>
+                    <span class="gold-text" data-i18n="hero.melody">Arab Melody</span>
+                </h1>
+                <p class="text-xl md:text-2xl text-slate-200 mb-8 font-arabic font-light italic drop-shadow-md">
+                    "عبقري الموسيقى العربية"
+                </p>
+                <p class="text-slate-300 max-w-2xl mx-auto mb-10 text-lg leading-relaxed drop-shadow-md" data-i18n="hero.desc">
+                    A master of the Oud, the architect of the classical Poem, and the soul behind Umm Kulthum's greatest emotional triumphs.
+                </p>
+                <div class="flex justify-center gap-4">
+                    <a href="#biography" class="bg-amber-600 hover:bg-amber-700 text-white px-8 py-3 rounded-sm transition-all duration-300 uppercase tracking-widest text-sm font-semibold shadow-[0_0_20px_rgba(217,119,6,0.3)] hover:shadow-[0_0_30px_rgba(217,119,6,0.5)]" data-i18n="hero.cta1">
+                        Discover His Life
+                    </a>
+                    <button onclick="playSample()" class="border border-amber-500 text-amber-400 hover:bg-amber-500/10 px-8 py-3 rounded-sm transition-all duration-300 uppercase tracking-widest text-sm font-semibold flex items-center gap-2 backdrop-blur-sm">
+                        <i data-lucide="play-circle" class="w-5 h-5"></i> <span data-i18n="hero.cta2">Listen</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- COMPOSITIONS SECTION (New based on the Book Image) -->
+    <section id="compositions" class="py-24 bg-amber-950 relative border-b border-amber-900/50">
+        <!-- Decorative Background -->
+        <div class="absolute inset-0 opacity-10 pointer-events-none bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-amber-900/40 via-slate-950 to-slate-950"></div>
+        
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="text-center mb-16">
+                <h2 class="text-sm font-bold tracking-[0.2em] text-amber-400 uppercase mb-3" data-i18n="comp.subtitle">Instrumental Works</h2>
+                <h3 class="text-4xl md:text-5xl font-heading font-bold text-white mb-6" data-i18n="comp.title">Musical Compositions</h3>
+                <p class="text-slate-300 max-w-2xl mx-auto" data-i18n="comp.desc">
+                    As documented in the "Musical Pieces" list, Riad Al Sunbati composed profound instrumental works that stand alone as masterpieces of the Oud and orchestra.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                
+                <!-- Composition 1: Ilaiha -->
+                <div class="bg-slate-900/80 border border-amber-500/30 p-8 rounded-sm hover:bg-slate-800 transition-all duration-300 group">
+                    <div class="flex justify-between items-center mb-4">
+                        <div class="w-10 h-10 rounded-full bg-amber-900/50 flex items-center justify-center text-amber-500 font-heading font-bold">36</div>
+                        <i data-lucide="music-2" class="text-slate-600 group-hover:text-amber-500 transition-colors"></i>
+                    </div>
+                    <h4 class="text-2xl font-heading text-white mb-1" data-i18n="comp.ilaiha.title">Ilaiha</h4>
+                    <p class="text-amber-500 font-arabic text-xl mb-4">إليها</p>
+                    <p class="text-slate-400 text-sm leading-relaxed" data-i18n="comp.ilaiha.desc">
+                        "To Her" - A romantic, contemplative musical piece listed as opus #36 in his catalogue.
+                    </p>
+                </div>
+
+                <!-- Composition 2: Longa Riad -->
+                <div class="bg-slate-900/80 border border-amber-500/30 p-8 rounded-sm hover:bg-slate-800 transition-all duration-300 group">
+                    <div class="flex justify-between items-center mb-4">
+                        <div class="w-10 h-10 rounded-full bg-amber-900/50 flex items-center justify-center text-amber-500 font-heading font-bold">31</div>
+                        <i data-lucide="music-2" class="text-slate-600 group-hover:text-amber-500 transition-colors"></i>
+                    </div>
+                    <h4 class="text-2xl font-heading text-white mb-1" data-i18n="comp.longa.title">Longa Riad</h4>
+                    <p class="text-amber-500 font-arabic text-xl mb-4">لونجا رياض</p>
+                    <p class="text-slate-400 text-sm leading-relaxed" data-i18n="comp.longa.desc">
+                        Perhaps his most famous instrumental. A fast-paced, technical masterpiece in the Nahawand scale (also known as Longa Sultani Yigah).
+                    </p>
+                </div>
+
+                <!-- Composition 3: Al Amal -->
+                <div class="bg-slate-900/80 border border-amber-500/30 p-8 rounded-sm hover:bg-slate-800 transition-all duration-300 group">
+                    <div class="flex justify-between items-center mb-4">
+                        <div class="w-10 h-10 rounded-full bg-amber-900/50 flex items-center justify-center text-amber-500 font-heading font-bold">04</div>
+                        <i data-lucide="music-2" class="text-slate-600 group-hover:text-amber-500 transition-colors"></i>
+                    </div>
+                    <h4 class="text-2xl font-heading text-white mb-1" data-i18n="comp.amal.title">Al Amal</h4>
+                    <p class="text-amber-500 font-arabic text-xl mb-4">أمل</p>
+                    <p class="text-slate-400 text-sm leading-relaxed" data-i18n="comp.amal.desc">
+                        "Hope" - An early composition reflecting the optimism and lyrical beauty of his style.
+                    </p>
+                </div>
+
+                <!-- Composition 4: Liqaa Al Habib -->
+                <div class="bg-slate-900/80 border border-amber-500/30 p-8 rounded-sm hover:bg-slate-800 transition-all duration-300 group">
+                    <div class="flex justify-between items-center mb-4">
+                        <div class="w-10 h-10 rounded-full bg-amber-900/50 flex items-center justify-center text-amber-500 font-heading font-bold">26</div>
+                        <i data-lucide="music-2" class="text-slate-600 group-hover:text-amber-500 transition-colors"></i>
+                    </div>
+                    <h4 class="text-2xl font-heading text-white mb-1" data-i18n="comp.liqaa.title">Liqaa Al Habib</h4>
+                    <p class="text-amber-500 font-arabic text-xl mb-4">لقاء الحبيب</p>
+                    <p class="text-slate-400 text-sm leading-relaxed" data-i18n="comp.liqaa.desc">
+                        "Meeting the Beloved" - A musical dialogue capturing the emotions of reunion.
+                    </p>
+                </div>
+
+                <!-- Composition 5: Ya Nasini -->
+                <div class="bg-slate-900/80 border border-amber-500/30 p-8 rounded-sm hover:bg-slate-800 transition-all duration-300 group">
+                    <div class="flex justify-between items-center mb-4">
+                        <div class="w-10 h-10 rounded-full bg-amber-900/50 flex items-center justify-center text-amber-500 font-heading font-bold">38</div>
+                        <i data-lucide="music-2" class="text-slate-600 group-hover:text-amber-500 transition-colors"></i>
+                    </div>
+                    <h4 class="text-2xl font-heading text-white mb-1" data-i18n="comp.nasini.title">Ya Nasini</h4>
+                    <p class="text-amber-500 font-arabic text-xl mb-4">يا ناسيني</p>
+                    <p class="text-slate-400 text-sm leading-relaxed" data-i18n="comp.nasini.desc">
+                        "Oh You Who Forgot Me" - Famous as a song for Shahrazad, but listed as a distinct musical composition in his archives.
+                    </p>
+                </div>
+
+                <!-- Composition 6: Ashwaq -->
+                <div class="bg-slate-900/80 border border-amber-500/30 p-8 rounded-sm hover:bg-slate-800 transition-all duration-300 group">
+                    <div class="flex justify-between items-center mb-4">
+                        <div class="w-10 h-10 rounded-full bg-amber-900/50 flex items-center justify-center text-amber-500 font-heading font-bold">37</div>
+                        <i data-lucide="music-2" class="text-slate-600 group-hover:text-amber-500 transition-colors"></i>
+                    </div>
+                    <h4 class="text-2xl font-heading text-white mb-1" data-i18n="comp.ashwaq.title">Ashwaq</h4>
+                    <p class="text-amber-500 font-arabic text-xl mb-4">أشواق</p>
+                    <p class="text-slate-400 text-sm leading-relaxed" data-i18n="comp.ashwaq.desc">
+                        "Longing" - Often performed by Sunbati himself on the Oud, this piece is a benchmark for emotional expression in Arabic music.
+                    </p>
+                </div>
+
+            </div>
+            
+            <div class="mt-12 text-center">
+                <p class="text-slate-500 text-sm" data-i18n="comp.note">
+                    * Reference: List of Musical Pieces by Riad Al Sunbati, from the book "The Artistic History".
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Biography Section -->
+    <section id="biography" class="py-24 bg-slate-950/50 relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
+                <div class="relative">
+                    <div class="absolute -inset-4 border-2 border-amber-600/20 translate-x-4 translate-y-4"></div>
+                    <!-- Placeholder for Image - Using a styled div since we avoid external images -->
+                    <div class="relative h-[500px] bg-slate-800 overflow-hidden flex items-center justify-center shadow-2xl grayscale hover:grayscale-0 transition-all duration-700 group">
+                         <!-- Artistic abstract representation -->
+                         <div class="absolute inset-0 bg-[url('https://i1.sndcdn.com/artworks-000208970763-s5e386-t500x500.jpg&quot')] bg-cover bg-center opacity-40 mix-blend-overlay"></div>
+                         <div class="text-center p-8 z-10">
+                             <i data-lucide="music-2" class="w-24 h-24 text-amber-500/50 mx-auto mb-4 group-hover:text-amber-500 transition-colors"></i>
+                             <p class="font-heading text-3xl text-amber-100 italic" data-i18n="bio.nightingale.en">The Nightingale</p>
+                             <p class="font-arabic text-xl text-amber-600 mt-2" data-i18n="bio.nightingale.ar">بلبل المنصورة</p>
+                         </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <h2 class="text-sm font-bold tracking-[0.2em] text-amber-500 uppercase mb-3" data-i18n="bio.subtitle">The Beginning</h2>
+                    <h3 class="text-4xl font-heading font-bold text-white mb-8" data-i18n="bio.title">From Faraskur to Cairo</h3>
+                    
+                    <div class="space-y-6 text-slate-300 leading-relaxed">
+                        <p data-i18n="bio.p1">
+                            Born on <strong>November 30, 1906</strong>, in the city of Faraskur, Damietta, Riad Al Sunbati's destiny was written in musical notes. His father was a singer, and young Riad would often escape school to listen to his father's band play.
+                        </p>
+                        <p data-i18n="bio.p2">
+                            When he lost his eyesight temporarily due to a disease at age nine, music became his vision. He mastered the Oud with such proficiency that he was nicknamed <em>"Bulbul Al-Mansoura"</em> (The Nightingale of Mansoura).
+                        </p>
+                        <p data-i18n="bio.p3">
+                            Unlike his contemporaries who rushed to modernize by borrowing heavily from Western classical music, Al Sunbati remained the guardian of the <strong>Eastern identity</strong>. He modernized from within, evolving the <em>Taqsim</em> and the <em>Qasida</em> while respecting the Maqam.
+                        </p>
+                        
+                        <div class="grid grid-cols-2 gap-6 mt-8">
+                            <div class="border-s-2 border-amber-700 ps-4">
+                                <span class="block text-3xl font-bold text-amber-500 font-heading">539</span>
+                                <span class="text-sm text-slate-400 uppercase tracking-wider" data-i18n="bio.stat1">Total Works</span>
+                            </div>
+                            <div class="border-s-2 border-amber-700 ps-4">
+                                <span class="block text-3xl font-bold text-amber-500 font-heading">1977</span>
+                                <span class="text-sm text-slate-400 uppercase tracking-wider" data-i18n="bio.stat2">UNESCO Award</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- The Singer Section -->
+    <section id="singer" class="py-24 bg-amber-950/20 relative border-y border-amber-900/30">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+             <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+                 <div>
+                     <h2 class="text-sm font-bold tracking-[0.2em] text-amber-500 uppercase mb-3" data-i18n="singer.subtitle">The Reluctant Star</h2>
+                     <h3 class="text-4xl font-heading font-bold text-white mb-6" data-i18n="singer.title">The Golden Voice</h3>
+                     <div class="space-y-4 text-slate-300 leading-relaxed">
+                         <p data-i18n="singer.p1">
+                             Before he was the "Genius of Melody," Riad Al Sunbati was known as <strong>"Bulbul Al-Mansoura"</strong> (The Nightingale of Mansoura). Possessing a warm, emotive voice, he started his career singing in the 1920s.
+                         </p>
+                         <p data-i18n="singer.p2">
+                             Despite his immense vocal talent, he deliberately chose to prioritize composing, believing his true legacy lay in creating music for others. However, he left us rare vocal gems that showcase his mastery of the Oud and his deep emotional capacity.
+                         </p>
+                         <p data-i18n="singer.p3">
+                             He starred in only one film, <em>Habeeb Qalbi</em> (1952), where he sang masterpieces like <strong>"Ala Oudi"</strong>. In his later years, he recorded personal masterpieces like "Ashwaq" that remain references for Oud playing and singing.
+                         </p>
+                     </div>
+                 </div>
+                 <div class="bg-slate-900 border border-amber-900/50 p-8 rounded-sm shadow-2xl relative overflow-hidden">
+                     <div class="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-amber-600/20 rounded-full blur-xl"></div>
+                     <h4 class="text-xl font-heading text-amber-100 mb-6 border-b border-amber-900/50 pb-4 flex items-center gap-2">
+                         <i data-lucide="mic" class="w-5 h-5 text-amber-500"></i>
+                         <span data-i18n="singer.list_title">Sung by Riad</span>
+                     </h4>
+                     <ul class="space-y-4">
+                         <li class="flex items-center gap-4 group cursor-pointer hover:bg-slate-800 p-2 rounded transition-colors" onclick="showSongDetails('Ala Oudi (Monologue)')">
+                             <button class="bg-amber-700 text-white p-3 rounded-full group-hover:bg-amber-600 transition-transform group-hover:scale-110"><i data-lucide="play" class="w-4 h-4"></i></button>
+                             <div>
+                                 <p class="text-white font-bold group-hover:text-amber-400 transition-colors" data-i18n="singer.list.ala">Ala Oudi</p>
+                                 <p class="text-xs text-slate-500" data-i18n="singer.list.ala.desc">"On My Oud" - The famous monologue</p>
+                             </div>
+                         </li>
+                         <li class="flex items-center gap-4 group cursor-pointer hover:bg-slate-800 p-2 rounded transition-colors" onclick="showSongDetails('Ashwaq')">
+                             <button class="bg-amber-700 text-white p-3 rounded-full group-hover:bg-amber-600 transition-transform group-hover:scale-110"><i data-lucide="play" class="w-4 h-4"></i></button>
+                             <div>
+                                 <p class="text-white font-bold group-hover:text-amber-400 transition-colors" data-i18n="singer.list.ashwaq">Ashwaq</p>
+                                 <p class="text-xs text-slate-500" data-i18n="singer.list.ashwaq.desc">"Longing" - A masterpiece of Oud & Vocal</p>
+                             </div>
+                         </li>
+                         <li class="flex items-center gap-4 group cursor-pointer hover:bg-slate-800 p-2 rounded transition-colors" onclick="showSongDetails('Ilah Al Kawn')">
+                             <button class="bg-amber-700 text-white p-3 rounded-full group-hover:bg-amber-600 transition-transform group-hover:scale-110"><i data-lucide="play" class="w-4 h-4"></i></button>
+                             <div>
+                                 <p class="text-white font-bold group-hover:text-amber-400 transition-colors" data-i18n="singer.list.ilah">Ilah Al Kawn</p>
+                                 <p class="text-xs text-slate-500" data-i18n="singer.list.ilah.desc">Religious Supplication</p>
+                             </div>
+                         </li>
+                         <li class="flex items-center gap-4 group cursor-pointer hover:bg-slate-800 p-2 rounded transition-colors" onclick="showSongDetails('Fajr')">
+                             <button class="bg-amber-700 text-white p-3 rounded-full group-hover:bg-amber-600 transition-transform group-hover:scale-110"><i data-lucide="play" class="w-4 h-4"></i></button>
+                             <div>
+                                 <p class="text-white font-bold group-hover:text-amber-400 transition-colors" data-i18n="singer.list.fajr">Fajr</p>
+                                 <p class="text-xs text-slate-500" data-i18n="singer.list.fajr.desc">Recorded in the 1940s</p>
+                             </div>
+                         </li>
+                     </ul>
+                 </div>
+             </div>
+        </div>
+    </section>
+
+    <!-- The Muse: Umm Kulthum -->
+    <section id="umm-kulthum" class="py-24 relative overflow-hidden">
+        <!-- Background elements -->
+        <div class="absolute top-0 right-0 w-full h-full bg-amber-900/5 -z-10 transform -skew-y-6 origin-top-right"></div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 class="text-sm font-bold tracking-[0.2em] text-amber-500 uppercase mb-3" data-i18n="muse.subtitle">The Golden Partnership</h2>
+            <h3 class="text-4xl md:text-5xl font-heading font-bold text-white mb-12" data-i18n="muse.title">Sunbati & The Lady</h3>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Card 1 -->
+                <div class="bg-slate-800/50 p-8 border border-amber-900/30 hover:border-amber-500/50 transition-all duration-300 group rounded-sm">
+                    <div class="h-12 w-12 bg-amber-900/50 rounded-full flex items-center justify-center mb-6 mx-auto group-hover:bg-amber-600 transition-colors">
+                        <span class="font-bold text-amber-400 group-hover:text-white">01</span>
+                    </div>
+                    <h4 class="text-xl font-heading font-bold text-amber-100 mb-4" data-i18n="muse.card1.title">The Guardian of the Poem</h4>
+                    <p class="text-slate-400 text-sm leading-relaxed" data-i18n="muse.card1.desc">
+                        While other composers gave Umm Kulthum modern, lighter songs, Sunbati was entrusted with the heavy, classical Arabic poems (*Qasidas*). He had the unique ability to make difficult Arabic grammar sound melodic and emotional.
+                    </p>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="bg-gradient-to-b from-amber-900/20 to-slate-900 p-8 border-t-4 border-amber-600 hover:transform hover:-translate-y-2 transition-all duration-300 rounded-sm relative">
+                    <div class="absolute top-4 right-4">
+                        <i data-lucide="crown" class="text-amber-500 w-6 h-6"></i>
+                    </div>
+                    <h4 class="text-2xl font-heading font-bold text-white mb-2" data-i18n="muse.card2.title">Al-Atlal</h4>
+                    <p class="text-amber-500 font-arabic mb-6">الأطلال (The Ruins)</p>
+                    <p class="text-slate-300 text-sm leading-relaxed mb-6" data-i18n="muse.card2.desc">
+                        Considered by many critics as the "Crown of Arabic Song." Released in 1966, this masterpiece cemented their legacy. It combines power, nostalgia, and intricate musical phrasing that drives audiences into ecstasy (Tarab).
+                    </p>
+                    <button onclick="showSongDetails('Al-Atlal')" class="text-xs font-bold tracking-widest text-amber-400 border-b border-amber-400 pb-1 hover:text-white hover:border-white transition-all" data-i18n="muse.card2.cta">READ STORY</button>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="bg-slate-800/50 p-8 border border-amber-900/30 hover:border-amber-500/50 transition-all duration-300 group rounded-sm">
+                    <div class="h-12 w-12 bg-amber-900/50 rounded-full flex items-center justify-center mb-6 mx-auto group-hover:bg-amber-600 transition-colors">
+                        <span class="font-bold text-amber-400 group-hover:text-white">02</span>
+                    </div>
+                    <h4 class="text-xl font-heading font-bold text-amber-100 mb-4" data-i18n="muse.card3.title">200+ Songs</h4>
+                    <p class="text-slate-400 text-sm leading-relaxed" data-i18n="muse.card3.desc">
+                        He composed more songs for Umm Kulthum than any other composer. Their journey spanned decades, from the 1930s "Ala Balad El-Mahboub" to the spiritual "Thawrat Al-Shak" and religious masterpieces like "Nahj El-Burda".
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Collaborations / Legacy Section -->
+    <section id="collaborations" class="py-24 bg-slate-950 relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-sm font-bold tracking-[0.2em] text-amber-500 uppercase mb-3" data-i18n="legacy.subtitle">Musical Galaxy</h2>
+                <h3 class="text-4xl md:text-5xl font-heading font-bold text-white mb-6" data-i18n="legacy.title">Legends He Composed For</h3>
+                <p class="text-slate-400 max-w-2xl mx-auto" data-i18n="legacy.desc">
+                    Beyond his historic partnership with Umm Kulthum, Riad Al Sunbati's melodies shaped the careers of the Arab world's most iconic voices. His 539 works span generations.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                <!-- Singer Card Template -->
+                <div class="singer-card bg-slate-900 border border-amber-900/30 p-6 text-center rounded-sm hover:border-amber-500/50 transition-all duration-300 cursor-default group">
+                    <div class="singer-icon mb-4 text-amber-700 transition-transform duration-500">
+                        <i data-lucide="mic-2" class="w-8 h-8 mx-auto"></i>
+                    </div>
+                    <h4 class="text-amber-100 font-heading font-bold text-lg mb-1" data-i18n="legacy.asmahan">Asmahan</h4>
+                    <p class="text-xs text-slate-500 font-arabic tracking-widest">أسمهان</p>
+                </div>
+
+                <div class="singer-card bg-slate-900 border border-amber-900/30 p-6 text-center rounded-sm hover:border-amber-500/50 transition-all duration-300 cursor-default group">
+                    <div class="singer-icon mb-4 text-amber-700 transition-transform duration-500">
+                        <i data-lucide="music-4" class="w-8 h-8 mx-auto"></i>
+                    </div>
+                    <h4 class="text-amber-100 font-heading font-bold text-lg mb-1" data-i18n="legacy.laila">Laila Murad</h4>
+                    <p class="text-xs text-slate-500 font-arabic tracking-widest">ليلى مراد</p>
+                </div>
+
+                <div class="singer-card bg-slate-900 border border-amber-900/30 p-6 text-center rounded-sm hover:border-amber-500/50 transition-all duration-300 cursor-default group">
+                    <div class="singer-icon mb-4 text-amber-700 transition-transform duration-500">
+                        <i data-lucide="star" class="w-8 h-8 mx-auto"></i>
+                    </div>
+                    <h4 class="text-amber-100 font-heading font-bold text-lg mb-1" data-i18n="legacy.warda">Warda</h4>
+                    <p class="text-xs text-slate-500 font-arabic tracking-widest">وردة الجزائرية</p>
+                </div>
+
+                <div class="singer-card bg-slate-900 border border-amber-900/30 p-6 text-center rounded-sm hover:border-amber-500/50 transition-all duration-300 cursor-default group">
+                    <div class="singer-icon mb-4 text-amber-700 transition-transform duration-500">
+                        <i data-lucide="user" class="w-8 h-8 mx-auto"></i>
+                    </div>
+                    <h4 class="text-amber-100 font-heading font-bold text-lg mb-1" data-i18n="legacy.halim">Abdel Halim</h4>
+                    <p class="text-xs text-slate-500 font-arabic tracking-widest">عبد الحليم حافظ</p>
+                </div>
+
+                <div class="singer-card bg-slate-900 border border-amber-900/30 p-6 text-center rounded-sm hover:border-amber-500/50 transition-all duration-300 cursor-default group">
+                    <div class="singer-icon mb-4 text-amber-700 transition-transform duration-500">
+                        <i data-lucide="mic" class="w-8 h-8 mx-auto"></i>
+                    </div>
+                    <h4 class="text-amber-100 font-heading font-bold text-lg mb-1" data-i18n="legacy.fayza">Fayza Ahmed</h4>
+                    <p class="text-xs text-slate-500 font-arabic tracking-widest">فايزة أحمد</p>
+                </div>
+                
+                <div class="singer-card bg-slate-900 border border-amber-900/30 p-6 text-center rounded-sm hover:border-amber-500/50 transition-all duration-300 cursor-default group">
+                    <div class="singer-icon mb-4 text-amber-700 transition-transform duration-500">
+                        <i data-lucide="music" class="w-8 h-8 mx-auto"></i>
+                    </div>
+                    <h4 class="text-amber-100 font-heading font-bold text-lg mb-1" data-i18n="legacy.najat">Najat Al Saghira</h4>
+                    <p class="text-xs text-slate-500 font-arabic tracking-widest">نجاة الصغيرة</p>
+                </div>
+
+                <div class="singer-card bg-slate-900 border border-amber-900/30 p-6 text-center rounded-sm hover:border-amber-500/50 transition-all duration-300 cursor-default group">
+                    <div class="singer-icon mb-4 text-amber-700 transition-transform duration-500">
+                        <i data-lucide="sun" class="w-8 h-8 mx-auto"></i>
+                    </div>
+                    <h4 class="text-amber-100 font-heading font-bold text-lg mb-1" data-i18n="legacy.sabah">Sabah</h4>
+                    <p class="text-xs text-slate-500 font-arabic tracking-widest">صباح</p>
+                </div>
+                
+                <div class="singer-card bg-slate-900 border border-amber-900/30 p-6 text-center rounded-sm hover:border-amber-500/50 transition-all duration-300 cursor-default group">
+                    <div class="singer-icon mb-4 text-amber-700 transition-transform duration-500">
+                        <i data-lucide="disc" class="w-8 h-8 mx-auto"></i>
+                    </div>
+                    <h4 class="text-amber-100 font-heading font-bold text-lg mb-1" data-i18n="legacy.huda">Huda Sultan</h4>
+                    <p class="text-xs text-slate-500 font-arabic tracking-widest">هدى سلطان</p>
+                </div>
+
+                <div class="singer-card bg-slate-900 border border-amber-900/30 p-6 text-center rounded-sm hover:border-amber-500/50 transition-all duration-300 cursor-default group">
+                    <div class="singer-icon mb-4 text-amber-700 transition-transform duration-500">
+                        <i data-lucide="mic-2" class="w-8 h-8 mx-auto"></i>
+                    </div>
+                    <h4 class="text-amber-100 font-heading font-bold text-lg mb-1" data-i18n="legacy.souad">Souad Mohamed</h4>
+                    <p class="text-xs text-slate-500 font-arabic tracking-widest">سعاد محمد</p>
+                </div>
+
+                <div class="singer-card bg-slate-900 border border-amber-900/30 p-6 text-center rounded-sm hover:border-amber-500/50 transition-all duration-300 cursor-default group">
+                    <div class="singer-icon mb-4 text-amber-700 transition-transform duration-500">
+                        <i data-lucide="user-check" class="w-8 h-8 mx-auto"></i>
+                    </div>
+                    <h4 class="text-amber-100 font-heading font-bold text-lg mb-1" data-i18n="legacy.saleh">Saleh Abdel Hai</h4>
+                    <p class="text-xs text-slate-500 font-arabic tracking-widest">صالح عبد الحي</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SCORES SECTION -->
+    <section id="scores" class="py-24 bg-slate-900 relative border-t border-amber-900/50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-sm font-bold tracking-[0.2em] text-amber-500 uppercase mb-3" data-i18n="scores.subtitle">From the Archives</h2>
+                <h3 class="text-4xl md:text-5xl font-heading font-bold text-white mb-6" data-i18n="scores.title">Book: "The Artistic History"</h3>
+                <p class="text-slate-400 max-w-2xl mx-auto" data-i18n="scores.desc">
+                    Analyzed masterpieces and scores documented in the book <em>"The Artistic History of the Musician Riad Al Sunbati"</em> (1993).
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Score Item 1 -->
+                <div class="score-card p-6 rounded-sm">
+                    <div class="flex justify-between items-start mb-4">
+                        <span class="bg-amber-900/50 text-amber-400 text-xs px-2 py-1 rounded" data-i18n="scores.type.taqtuqa">Taqtuqa</span>
+                        <span class="text-slate-500 text-xs"><span data-i18n="scores.page">Page</span> 37</span>
+                    </div>
+                    <h4 class="text-xl font-heading text-white font-bold mb-1" data-i18n="scores.item1.title">Batet'ala 'Alshan...</h4>
+                    <p class="text-amber-500 font-arabic mb-4">بتتقلى علشان ما بحبك</p>
+                    <p class="text-slate-400 text-xs mb-4"><i data-lucide="mic" class="w-3 h-3 inline mr-1"></i> <span data-i18n="scores.item1.singer">Ahmed Abdel Kader</span></p>
+                    <p class="text-slate-300 font-arabic text-sm leading-loose border-s-2 border-amber-700 ps-3 italic">
+                        "بتتقلى علشان ما بحبك طب تخصيم أنا زعلان منك..."
+                    </p>
+                </div>
+
+                <!-- Score Item 2 -->
+                <div class="score-card p-6 rounded-sm">
+                    <div class="flex justify-between items-start mb-4">
+                        <span class="bg-amber-900/50 text-amber-400 text-xs px-2 py-1 rounded" data-i18n="scores.type.anthem">Anthem</span>
+                        <span class="text-slate-500 text-xs"><span data-i18n="scores.page">Page</span> 42</span>
+                    </div>
+                    <h4 class="text-xl font-heading text-white font-bold mb-1" data-i18n="scores.item2.title">Nashid Al-Jamia</h4>
+                    <p class="text-amber-500 font-arabic mb-4">نشيد الجامعة</p>
+                    <p class="text-slate-400 text-xs mb-4"><i data-lucide="mic" class="w-3 h-3 inline mr-1"></i> <span data-i18n="scores.item2.singer">Umm Kulthum</span></p>
+                    <p class="text-slate-300 font-arabic text-sm leading-loose border-s-2 border-amber-700 ps-3 italic">
+                        "يا شباب النيل يا عماد الجيل..."
+                    </p>
+                </div>
+
+                <!-- Score Item 3 -->
+                <div class="score-card p-6 rounded-sm">
+                    <div class="flex justify-between items-start mb-4">
+                        <span class="bg-amber-900/50 text-amber-400 text-xs px-2 py-1 rounded" data-i18n="scores.type.taqtuqa">Taqtuqa</span>
+                        <span class="text-slate-500 text-xs"><span data-i18n="scores.page">Page</span> 47</span>
+                    </div>
+                    <h4 class="text-xl font-heading text-white font-bold mb-1" data-i18n="scores.item3.title">Ifrah Ya Qalbi</h4>
+                    <p class="text-amber-500 font-arabic mb-4">إفرح يا قلبي</p>
+                    <p class="text-slate-400 text-xs mb-4"><i data-lucide="mic" class="w-3 h-3 inline mr-1"></i> <span data-i18n="scores.item3.singer">Umm Kulthum</span></p>
+                    <p class="text-slate-300 font-arabic text-sm leading-loose border-s-2 border-amber-700 ps-3 italic">
+                        "افرح يا قلبي لك نصيب تبلغ مناك ويا الحبيب..."
+                    </p>
+                </div>
+
+                <!-- Score Item 4 -->
+                <div class="score-card p-6 rounded-sm">
+                    <div class="flex justify-between items-start mb-4">
+                        <span class="bg-amber-900/50 text-amber-400 text-xs px-2 py-1 rounded" data-i18n="scores.type.qasida">Qasida</span>
+                        <span class="text-slate-500 text-xs"><span data-i18n="scores.page">Page</span> 52</span>
+                    </div>
+                    <h4 class="text-xl font-heading text-white font-bold mb-1" data-i18n="scores.item4.title">Salou Kouous...</h4>
+                    <p class="text-amber-500 font-arabic mb-4">سلوا كؤوس الطلا</p>
+                    <p class="text-slate-400 text-xs mb-4"><i data-lucide="mic" class="w-3 h-3 inline mr-1"></i> <span data-i18n="scores.item4.singer">Umm Kulthum</span></p>
+                    <p class="text-slate-300 font-arabic text-sm leading-loose border-s-2 border-amber-700 ps-3 italic">
+                        "سلوا كؤوس الطلا هل لأمس فاها..."
+                    </p>
+                </div>
+
+                <!-- Score Item 5 -->
+                <div class="score-card p-6 rounded-sm">
+                    <div class="flex justify-between items-start mb-4">
+                        <span class="bg-amber-900/50 text-amber-400 text-xs px-2 py-1 rounded" data-i18n="scores.type.qasida">Qasida</span>
+                        <span class="text-slate-500 text-xs"><span data-i18n="scores.page">Page</span> 62</span>
+                    </div>
+                    <h4 class="text-xl font-heading text-white font-bold mb-1" data-i18n="scores.item5.title">Ayyuha Al-Na'im</h4>
+                    <p class="text-amber-500 font-arabic mb-4">أيها النائم</p>
+                    <p class="text-slate-400 text-xs mb-4"><i data-lucide="mic" class="w-3 h-3 inline mr-1"></i> <span data-i18n="scores.item5.singer">Asmahan</span></p>
+                    <p class="text-slate-300 font-arabic text-sm leading-loose border-s-2 border-amber-700 ps-3 italic">
+                        "أيها النائم عن ليلى سلاما..."
+                    </p>
+                </div>
+
+                <!-- Score Item 6 -->
+                <div class="score-card p-6 rounded-sm">
+                    <div class="flex justify-between items-start mb-4">
+                        <span class="bg-amber-900/50 text-amber-400 text-xs px-2 py-1 rounded" data-i18n="scores.type.qasida">Qasida</span>
+                        <span class="text-slate-500 text-xs"><span data-i18n="scores.page">Page</span> 68</span>
+                    </div>
+                    <h4 class="text-xl font-heading text-white font-bold mb-1" data-i18n="scores.item6.title">Ason Karamati</h4>
+                    <p class="text-amber-500 font-arabic mb-4">أصون كرامتي</p>
+                    <p class="text-slate-400 text-xs mb-4"><i data-lucide="mic" class="w-3 h-3 inline mr-1"></i> <span data-i18n="scores.item6.singer">Umm Kulthum</span></p>
+                    <p class="text-slate-300 font-arabic text-sm leading-loose border-s-2 border-amber-700 ps-3 italic">
+                        "أصون كرامتي من قبل حبي..."
+                    </p>
+                </div>
+
+                <!-- Score Item 7 -->
+                <div class="score-card p-6 rounded-sm">
+                    <div class="flex justify-between items-start mb-4">
+                        <span class="bg-amber-900/50 text-amber-400 text-xs px-2 py-1 rounded" data-i18n="scores.type.qasida">Qasida</span>
+                        <span class="text-slate-500 text-xs"><span data-i18n="scores.page">Page</span> 72</span>
+                    </div>
+                    <h4 class="text-xl font-heading text-white font-bold mb-1" data-i18n="scores.item7.title">Misr Tatahaddath...</h4>
+                    <p class="text-amber-500 font-arabic mb-4">مصر تتحدث عن نفسها</p>
+                    <p class="text-slate-400 text-xs mb-4"><i data-lucide="mic" class="w-3 h-3 inline mr-1"></i> <span data-i18n="scores.item7.singer">Umm Kulthum</span></p>
+                    <p class="text-slate-300 font-arabic text-sm leading-loose border-s-2 border-amber-700 ps-3 italic">
+                        "وقف الخلق ينظرون جميعاً كيف أبنى قواعد المجد وحدى..."
+                    </p>
+                </div>
+
+                <!-- Score Item 8 -->
+                <div class="score-card p-6 rounded-sm">
+                    <div class="flex justify-between items-start mb-4">
+                        <span class="bg-amber-900/50 text-amber-400 text-xs px-2 py-1 rounded" data-i18n="scores.type.monologue">Monologue</span>
+                        <span class="text-slate-500 text-xs"><span data-i18n="scores.page">Page</span> 80</span>
+                    </div>
+                    <h4 class="text-xl font-heading text-white font-bold mb-1" data-i18n="scores.item8.title">Ala Oudi</h4>
+                    <p class="text-amber-500 font-arabic mb-4">على عودي</p>
+                    <p class="text-slate-400 text-xs mb-4"><i data-lucide="mic" class="w-3 h-3 inline mr-1"></i> <span data-i18n="scores.item8.singer">Riad Al Sunbati</span></p>
+                    <p class="text-slate-300 font-arabic text-sm leading-loose border-s-2 border-amber-700 ps-3 italic">
+                        "على عودى أنام واصحى وليالى العمر دى شهودى..."
+                    </p>
+                </div>
+
+                <!-- Score Item 9 -->
+                <div class="score-card p-6 rounded-sm">
+                    <div class="flex justify-between items-start mb-4">
+                        <span class="bg-amber-900/50 text-amber-400 text-xs px-2 py-1 rounded" data-i18n="scores.type.monologue">Monologue</span>
+                        <span class="text-slate-500 text-xs"><span data-i18n="scores.page">Page</span> 88</span>
+                    </div>
+                    <h4 class="text-xl font-heading text-white font-bold mb-1" data-i18n="scores.item9.title">Ana Wahdi</h4>
+                    <p class="text-amber-500 font-arabic mb-4">أنا وحدى</p>
+                    <p class="text-slate-400 text-xs mb-4"><i data-lucide="mic" class="w-3 h-3 inline mr-1"></i> <span data-i18n="scores.item9.singer">Souad Mohamed</span></p>
+                    <p class="text-slate-300 font-arabic text-sm leading-loose border-s-2 border-amber-700 ps-3 italic">
+                        "أنا وحدى ليس في الأيام من يعرف وجدى..."
+                    </p>
+                </div>
+                
+                <!-- Score Item 10 -->
+                <div class="score-card p-6 rounded-sm">
+                    <div class="flex justify-between items-start mb-4">
+                        <span class="bg-amber-900/50 text-amber-400 text-xs px-2 py-1 rounded" data-i18n="scores.type.taqtuqa">Taqtuqa</span>
+                        <span class="text-slate-500 text-xs"><span data-i18n="scores.page">Page</span> 94</span>
+                    </div>
+                    <h4 class="text-xl font-heading text-white font-bold mb-1" data-i18n="scores.item10.title">Thalat Shohour...</h4>
+                    <p class="text-amber-500 font-arabic mb-4">ثلاث شهور ويومين</p>
+                    <p class="text-slate-400 text-xs mb-4"><i data-lucide="mic" class="w-3 h-3 inline mr-1"></i> <span data-i18n="scores.item10.singer">Shadia</span></p>
+                    <p class="text-slate-300 font-arabic text-sm leading-loose border-s-2 border-amber-700 ps-3 italic">
+                        "ثلاث شهور ويومين اثنين ونص ساعة ودقيقتين..."
+                    </p>
+                </div>
+
+                <!-- Score Item 11 -->
+                <div class="score-card p-6 rounded-sm">
+                    <div class="flex justify-between items-start mb-4">
+                        <span class="bg-amber-900/50 text-amber-400 text-xs px-2 py-1 rounded" data-i18n="scores.type.religious">Religious</span>
+                        <span class="text-slate-500 text-xs"><span data-i18n="scores.page">Page</span> 99</span>
+                    </div>
+                    <h4 class="text-xl font-heading text-white font-bold mb-1" data-i18n="scores.item11.title">Ilahi Ma A'zamak</h4>
+                    <p class="text-amber-500 font-arabic mb-4">إلهي ما أعظمك</p>
+                    <p class="text-slate-400 text-xs mb-4"><i data-lucide="mic" class="w-3 h-3 inline mr-1"></i> <span data-i18n="scores.item11.singer">Najat Al Saghira</span></p>
+                    <p class="text-slate-300 font-arabic text-sm leading-loose border-s-2 border-amber-700 ps-3 italic">
+                        "إلهى ما أعظمك في قدرتك وعلاك..."
+                    </p>
+                </div>
+
+                <!-- Score Item 12 -->
+                <div class="score-card p-6 rounded-sm">
+                    <div class="flex justify-between items-start mb-4">
+                        <span class="bg-amber-900/50 text-amber-400 text-xs px-2 py-1 rounded" data-i18n="scores.type.qasida">Qasida</span>
+                        <span class="text-slate-500 text-xs"><span data-i18n="scores.page">Page</span> 115</span>
+                    </div>
+                    <h4 class="text-xl font-heading text-white font-bold mb-1" data-i18n="scores.item12.title">Ashwaq</h4>
+                    <p class="text-amber-500 font-arabic mb-4">أشواق</p>
+                    <p class="text-slate-400 text-xs mb-4"><i data-lucide="mic" class="w-3 h-3 inline mr-1"></i> <span data-i18n="scores.item12.singer">Riad Al Sunbati</span></p>
+                    <p class="text-slate-300 font-arabic text-sm leading-loose border-s-2 border-amber-700 ps-3 italic">
+                        "أيا الناعس في ليلا الخيال تذكر تعهد وناجي الشحات..."
+                    </p>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Masterpieces Section -->
+    <section id="works" class="py-24 bg-slate-950">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row justify-between items-end mb-12">
+                <div>
+                    <h2 class="text-sm font-bold tracking-[0.2em] text-amber-500 uppercase mb-3" data-i18n="works.subtitle">Discography</h2>
+                    <h3 class="text-4xl font-heading font-bold text-white" data-i18n="works.title">Musical Gems</h3>
+                </div>
+                <div class="hidden md:block text-slate-500 font-arabic text-xl">
+                    روائع السنباطي
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Work Item 1 -->
+                <div class="group relative overflow-hidden rounded-sm aspect-square bg-slate-900 border border-slate-800">
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950 to-transparent opacity-90"></div>
+                    <div class="absolute bottom-0 left-0 p-6 w-full">
+                        <div class="flex items-center gap-3 mb-2 opacity-0 transform translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
+                            <button class="bg-amber-600 p-2 rounded-full hover:bg-amber-500 text-white">
+                                <i data-lucide="play" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                        <h4 class="text-lg font-bold text-white group-hover:text-amber-400 transition-colors" data-i18n="works.item1.title">Longa Riad</h4>
+                        <p class="text-sm text-slate-400" data-i18n="works.item1.desc">Instrumental (Oud)</p>
+                        <div class="h-1 w-0 bg-amber-500 mt-3 group-hover:w-full transition-all duration-500"></div>
+                    </div>
+                </div>
+
+                <!-- Work Item 2 -->
+                <div class="group relative overflow-hidden rounded-sm aspect-square bg-slate-900 border border-slate-800">
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950 to-transparent opacity-90"></div>
+                    <div class="absolute bottom-0 left-0 p-6 w-full">
+                        <div class="flex items-center gap-3 mb-2 opacity-0 transform translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
+                            <button class="bg-amber-600 p-2 rounded-full hover:bg-amber-500 text-white">
+                                <i data-lucide="play" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                        <h4 class="text-lg font-bold text-white group-hover:text-amber-400 transition-colors" data-i18n="works.item2.title">Robaa'eyat El Khayyam</h4>
+                        <p class="text-sm text-slate-400" data-i18n="works.item2.desc">Umm Kulthum</p>
+                        <div class="h-1 w-0 bg-amber-500 mt-3 group-hover:w-full transition-all duration-500"></div>
+                    </div>
+                </div>
+
+                <!-- Work Item 3 -->
+                <div class="group relative overflow-hidden rounded-sm aspect-square bg-slate-900 border border-slate-800">
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950 to-transparent opacity-90"></div>
+                    <div class="absolute bottom-0 left-0 p-6 w-full">
+                        <div class="flex items-center gap-3 mb-2 opacity-0 transform translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
+                            <button class="bg-amber-600 p-2 rounded-full hover:bg-amber-500 text-white">
+                                <i data-lucide="play" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                        <h4 class="text-lg font-bold text-white group-hover:text-amber-400 transition-colors" data-i18n="works.item3.title">Lahn Al Wafa</h4>
+                        <p class="text-sm text-slate-400" data-i18n="works.item3.desc">Abdel Halim Hafez</p>
+                        <div class="h-1 w-0 bg-amber-500 mt-3 group-hover:w-full transition-all duration-500"></div>
+                    </div>
+                </div>
+
+                <!-- Work Item 4 -->
+                <div class="group relative overflow-hidden rounded-sm aspect-square bg-slate-900 border border-slate-800">
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950 to-transparent opacity-90"></div>
+                    <div class="absolute bottom-0 left-0 p-6 w-full">
+                        <div class="flex items-center gap-3 mb-2 opacity-0 transform translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
+                            <button class="bg-amber-600 p-2 rounded-full hover:bg-amber-500 text-white">
+                                <i data-lucide="play" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                        <h4 class="text-lg font-bold text-white group-hover:text-amber-400 transition-colors" data-i18n="works.item4.title">Awidta Ayni</h4>
+                        <p class="text-sm text-slate-400" data-i18n="works.item4.desc">Umm Kulthum</p>
+                        <div class="h-1 w-0 bg-amber-500 mt-3 group-hover:w-full transition-all duration-500"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Audio Player Mockup -->
+    <div class="fixed bottom-0 left-0 w-full bg-slate-900/95 backdrop-blur-lg border-t border-amber-800/50 p-4 z-50 transform transition-transform duration-500 translate-y-full" id="musicPlayer">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 bg-slate-800 rounded-full border-2 border-amber-600 flex items-center justify-center animate-spin-slow" id="playerDisc">
+                    <div class="w-4 h-4 bg-slate-900 rounded-full"></div>
+                </div>
+                <div>
+                    <h5 class="text-white font-bold text-sm" id="playerTitle">Al-Atlal</h5>
+                    <p class="text-amber-500 text-xs">Riad Al Sunbati (Oud Solo)</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-6">
+                <button class="text-slate-400 hover:text-white"><i data-lucide="skip-back" class="w-5 h-5"></i></button>
+                <button class="bg-amber-600 text-white p-3 rounded-full hover:bg-amber-500 transition-colors" onclick="togglePlay()">
+                    <i data-lucide="play" class="w-5 h-5" id="playPauseIcon"></i>
+                </button>
+                <button class="text-slate-400 hover:text-white"><i data-lucide="skip-forward" class="w-5 h-5"></i></button>
+            </div>
+
+            <div class="hidden md:flex items-center gap-3 w-1/4">
+                <span class="text-xs text-slate-400">0:00</span>
+                <div class="h-1 bg-slate-700 rounded-full flex-1">
+                    <div class="h-full w-1/3 bg-amber-600 rounded-full"></div>
+                </div>
+                <span class="text-xs text-slate-400">4:32</span>
+            </div>
+
+            <button onclick="closePlayer()" class="text-slate-500 hover:text-white ml-4">
+                <i data-lucide="x" class="w-4 h-4"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-slate-950 py-12 border-t border-amber-900/30">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <i data-lucide="music" class="w-8 h-8 text-amber-600 mx-auto mb-4"></i>
+            <p class="text-slate-500 text-sm mb-6" data-i18n="footer.desc">Preserving the legacy of the Prince of Arab Melody.</p>
+            <div class="flex justify-center gap-6 text-slate-400 text-sm tracking-widest uppercase">
+                <a href="#" class="hover:text-amber-500 transition-colors" data-i18n="footer.archive">Archive</a>
+                <span class="text-slate-700">|</span>
+                <a href="#" class="hover:text-amber-500 transition-colors" data-i18n="footer.gallery">Gallery</a>
+                <span class="text-slate-700">|</span>
+                <a href="#" class="hover:text-amber-500 transition-colors" data-i18n="footer.contact">Contact</a>
+            </div>
+            <p class="mt-8 text-slate-700 text-xs" data-i18n="footer.copy">
+                &copy; 2024 Riad Al Sunbati Tribute. Designed with respect for the Heritage.
+            </p>
+        </div>
+    </footer>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="fixed top-24 right-4 bg-amber-600 text-white px-6 py-3 rounded shadow-lg transform translate-x-full transition-transform duration-300 flex items-center gap-3 z-50">
+        <i data-lucide="info" class="w-5 h-5"></i>
+        <span id="toastMsg">Notification</span>
+    </div>
+
+    <script>
+        // Initialize Lucide Icons safely
+        window.onload = function() {
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            } else {
+                console.warn("Lucide icons library not loaded yet.");
+            }
+            
+            // Initialize 3D scene
+            initThreeJS();
+            
+            // Initialize Interactive Notes
+            initFloatingNotes();
+        };
+
+        function initFloatingNotes() {
+            const heroSection = document.getElementById('home');
+            let lastNoteTime = 0;
+
+            if (heroSection) {
+                heroSection.addEventListener('mousemove', (e) => {
+                    const now = Date.now();
+                    if (now - lastNoteTime > 100) { // Reasonable throttle
+                        createFloatingNote(e.clientX, e.clientY);
+                        lastNoteTime = now;
+                    }
+                });
+                
+                heroSection.addEventListener('click', (e) => {
+                    // Burst on click
+                    for(let i=0; i<5; i++) {
+                        setTimeout(() => createFloatingNote(e.clientX, e.clientY), i * 100);
+                    }
+                });
+            }
+        }
+
+        function createFloatingNote(x, y) {
+            const notes = ['♪', '♫', '♩', '♬', '♭', '♮', '♯'];
+            const note = document.createElement('div');
+            note.classList.add('music-note');
+            note.innerText = notes[Math.floor(Math.random() * notes.length)];
+            
+            // Random position offset
+            const offsetX = (Math.random() - 0.5) * 50;
+            const offsetY = (Math.random() - 0.5) * 50;
+            
+            note.style.left = `${x + offsetX}px`;
+            note.style.top = `${y + offsetY}px`;
+            
+            // Random size and rotation
+            const size = Math.floor(Math.random() * 20) + 15;
+            const rotation = Math.floor(Math.random() * 360);
+            note.style.fontSize = `${size}px`;
+            note.style.transform = `rotate(${rotation}deg)`;
+            
+            // Random amber/gold colors
+            const colors = ['#fbbf24', '#d97706', '#b45309', '#92400e', '#fcd34d'];
+            note.style.color = colors[Math.floor(Math.random() * colors.length)];
+
+            document.body.appendChild(note);
+
+            // Remove after animation
+            setTimeout(() => {
+                note.remove();
+            }, 2000);
+        }
+
+        // Mobile Menu Toggle
+        const btn = document.getElementById('mobile-menu-btn');
+        const menu = document.getElementById('mobile-menu');
+
+        btn.addEventListener('click', () => {
+            menu.classList.toggle('hidden');
+        });
+
+        // Player Logic
+        const player = document.getElementById('musicPlayer');
+        let isPlaying = false;
+
+        function playSample() {
+            player.classList.remove('translate-y-full');
+            togglePlay(true);
+        }
+
+        function closePlayer() {
+            player.classList.add('translate-y-full');
+            isPlaying = false;
+            updatePlayIcon();
+        }
+
+        function togglePlay(forcePlay = false) {
+            if (forcePlay) {
+                isPlaying = true;
+            } else {
+                isPlaying = !isPlaying;
+            }
+            updatePlayIcon();
+        }
+
+        function updatePlayIcon() {
+            const icon = document.getElementById('playPauseIcon');
+            const disc = document.getElementById('playerDisc');
+            
+            if (isPlaying) {
+                // Set to Pause Icon
+                icon.setAttribute('data-lucide', 'pause');
+                disc.classList.add('record-spin');
+                disc.classList.remove('paused');
+            } else {
+                // Set to Play Icon
+                icon.setAttribute('data-lucide', 'play');
+                disc.classList.add('paused');
+            }
+            
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        }
+
+        // Info Modal / Song Details
+        function showSongDetails(songName) {
+            const toast = document.getElementById('toast');
+            const msg = document.getElementById('toastMsg');
+            const prefix = translations[currentLang]["toast.loaded"] || "Loaded details for: ";
+            msg.innerText = `${prefix}${songName}`;
+            
+            toast.classList.remove('translate-x-full');
+            setTimeout(() => {
+                toast.classList.add('translate-x-full');
+            }, 3000);
+        }
+
+        // Navbar Scroll Effect
+        window.addEventListener('scroll', () => {
+            const nav = document.getElementById('navbar');
+            if (window.scrollY > 50) {
+                nav.classList.add('shadow-lg');
+                nav.classList.add('bg-slate-900/95');
+            } else {
+                nav.classList.remove('shadow-lg');
+                nav.classList.remove('bg-slate-900/80');
+            }
+        });
+
+        // Three.js Implementation for 3D Oud
+        function initThreeJS() {
+            const container = document.getElementById('canvas-container');
+            if (!container) return;
+            
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+            
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            container.appendChild(renderer.domElement);
+
+            // Lights
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+            scene.add(ambientLight);
+            
+            const directionalLight = new THREE.DirectionalLight(0xffaa00, 0.8); // Golden light
+            directionalLight.position.set(5, 5, 5);
+            scene.add(directionalLight);
+
+            // Set camera position
+            camera.position.z = 5;
+
+            const loader = new THREE.GLTFLoader();
+            loader.load(
+                'oud.glb', // Replace with your model path
+                function (gltf) {
+                    const model = gltf.scene;
+                    model.scale.set(5, 5, 5); // Adjust scale as needed
+                    model.position.y = -3; // Adjust position
+                    model.rotation.y = Math.PI / 4;
+                    
+                    scene.add(model);
+                    
+                    // Add to global variable for animation if needed, or create specific animate function
+                    // For simple rotation:
+                    const animateModel = function() {
+                        requestAnimationFrame(animateModel);
+                        
+                        // Base rotation only
+                        model.rotation.y += 0.0095;
+
+                        renderer.render(scene, camera);
+                    };
+                    animateModel();
+                },
+                function (xhr) {
+                    console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+                },
+                function (error) {
+                    console.error('An error happened', error);
+                }
+            );
+
+            // Handle Resize
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+        };
+
+        // Translation Logic
+        const translations = {
+            en: {
+                "nav.home": "Home",
+                "nav.bio": "Biography",
+                "nav.singer": "The Singer",
+                "nav.muse": "The Muse",
+                "nav.legacy": "Legacy",
+                "nav.compositions": "Compositions",
+                "hero.genius": "The Genius of",
+                "hero.melody": "Arab Melody",
+                "hero.desc": "A master of the Oud, the architect of the classical Poem, and the soul behind Umm Kulthum's greatest emotional triumphs.",
+                "hero.cta1": "Discover His Life",
+                "hero.cta2": "Listen",
+                "comp.subtitle": "Instrumental Works",
+                "comp.title": "Musical Compositions",
+                "comp.desc": "As documented in the \"Musical Pieces\" list, Riad Al Sunbati composed profound instrumental works that stand alone as masterpieces of the Oud and orchestra.",
+                "comp.ilaiha.title": "Ilaiha",
+                "comp.ilaiha.desc": "\"To Her\" - A romantic, contemplative musical piece listed as opus #36 in his catalogue.",
+                "comp.longa.title": "Longa Riad",
+                "comp.longa.desc": "Perhaps his most famous instrumental. A fast-paced, technical masterpiece in the Nahawand scale (also known as Longa Sultani Yigah).",
+                "comp.amal.title": "Al Amal",
+                "comp.amal.desc": "\"Hope\" - An early composition reflecting the optimism and lyrical beauty of his style.",
+                "comp.liqaa.title": "Liqaa Al Habib",
+                "comp.liqaa.desc": "\"Meeting the Beloved\" - A musical dialogue capturing the emotions of reunion.",
+                "comp.nasini.title": "Ya Nasini",
+                "comp.nasini.desc": "\"Oh You Who Forgot Me\" - Famous as a song for Shahrazad, but listed as a distinct musical composition in his archives.",
+                "comp.ashwaq.title": "Ashwaq",
+                "comp.ashwaq.desc": "\"Longing\" - Often performed by Sunbati himself on the Oud, this piece is a benchmark for emotional expression in Arabic music.",
+                "comp.note": "* Reference: List of Musical Pieces by Riad Al Sunbati, from the book \"The Artistic History\".",
+                "bio.subtitle": "The Beginning",
+                "bio.title": "From Faraskur to Cairo",
+                "bio.p1": "Born on <strong>November 30, 1906</strong>, in the city of Faraskur, Damietta, Riad Al Sunbati's destiny was written in musical notes. His father was a singer, and young Riad would often escape school to listen to his father's band play.",
+                "bio.p2": "When he lost his eyesight temporarily due to a disease at age nine, music became his vision. He mastered the Oud with such proficiency that he was nicknamed <em>\"Bulbul Al-Mansoura\"</em> (The Nightingale of Mansoura).",
+                "bio.p3": "Unlike his contemporaries who rushed to modernize by borrowing heavily from Western classical music, Al Sunbati remained the guardian of the <strong>Eastern identity</strong>. He modernized from within, evolving the <em>Taqsim</em> and the <em>Qasida</em> while respecting the Maqam.",
+                "bio.nightingale.en": "The Nightingale",
+                "bio.nightingale.ar": "بلبل المنصورة",
+                "bio.stat1": "Total Works",
+                "bio.stat2": "UNESCO Award",
+                "singer.subtitle": "The Reluctant Star",
+                "singer.title": "The Golden Voice",
+                "singer.p1": "Before he was the \"Genius of Melody,\" Riad Al Sunbati was known as <strong>\"Bulbul Al-Mansoura\"</strong> (The Nightingale of Mansoura). Possessing a warm, emotive voice, he started his career singing in the 1920s.",
+                "singer.p2": "Despite his immense vocal talent, he deliberately chose to prioritize composing, believing his true legacy lay in creating music for others. However, he left us rare vocal gems that showcase his mastery of the Oud and his deep emotional capacity.",
+                "singer.p3": "He starred in only one film, <em>Habeeb Qalbi</em> (1952), where he sang masterpieces like <strong>\"Ala Oudi\"</strong>. In his later years, he recorded personal masterpieces like \"Ashwaq\" that remain references for Oud playing and singing.",
+                "singer.list_title": "Sung by Riad",
+                "singer.list.ala": "Ala Oudi",
+                "singer.list.ala.desc": "\"On My Oud\" - The famous monologue",
+                "singer.list.ashwaq": "Ashwaq",
+                "singer.list.ashwaq.desc": "\"Longing\" - A masterpiece of Oud & Vocal",
+                "singer.list.ilah": "Ilah Al Kawn",
+                "singer.list.ilah.desc": "Religious Supplication",
+                "singer.list.fajr": "Fajr",
+                "singer.list.fajr.desc": "Recorded in the 1940s",
+                "muse.subtitle": "The Golden Partnership",
+                "muse.title": "Sunbati & The Lady",
+                "muse.card1.title": "The Guardian of the Poem",
+                "muse.card1.desc": "While other composers gave Umm Kulthum modern, lighter songs, Sunbati was entrusted with the heavy, classical Arabic poems (*Qasidas*). He had the unique ability to make difficult Arabic grammar sound melodic and emotional.",
+                "muse.card2.title": "Al-Atlal",
+                "muse.card2.desc": "Considered by many critics as the \"Crown of Arabic Song.\" Released in 1966, this masterpiece cemented their legacy. It combines power, nostalgia, and intricate musical phrasing that drives audiences into ecstasy (Tarab).",
+                "muse.card2.cta": "READ STORY",
+                "muse.card3.title": "200+ Songs",
+                "muse.card3.desc": "He composed more songs for Umm Kulthum than any other composer. Their journey spanned decades, from the 1930s \"Ala Balad El-Mahboub\" to the spiritual \"Thawrat Al-Shak\" and religious masterpieces like \"Nahj El-Burda\".",
+                "legacy.subtitle": "Musical Galaxy",
+                "legacy.title": "Legends He Composed For",
+                "legacy.desc": "Beyond his historic partnership with Umm Kulthum, Riad Al Sunbati's melodies shaped the careers of the Arab world's most iconic voices. His 539 works span generations.",
+                "scores.subtitle": "From the Archives",
+                "scores.title": "Book: \"The Artistic History\"",
+                "scores.desc": "Analyzed masterpieces and scores documented in the book <em>\"The Artistic History of the Musician Riad Al Sunbati\"</em> (1993).",
+                "works.subtitle": "Discography",
+                "works.title": "Musical Gems",
+                "works.item1.title": "Longa Riad",
+                "works.item1.desc": "Instrumental (Oud)",
+                "works.item2.title": "Robaa'eyat El Khayyam",
+                "works.item2.desc": "Umm Kulthum",
+                "works.item3.title": "Lahn Al Wafa",
+                "works.item3.desc": "Abdel Halim Hafez",
+                "works.item4.title": "Awidta Ayni",
+                "works.item4.desc": "Umm Kulthum",
+                "footer.desc": "Preserving the legacy of the Prince of Arab Melody.",
+                "footer.archive": "Archive",
+                "footer.gallery": "Gallery",
+                "footer.contact": "Contact",
+                "footer.copy": "&copy; 2024 Riad Al Sunbati Tribute. Designed with respect for the Heritage.",
+                "scores.type.taqtuqa": "Taqtuqa",
+                "scores.type.anthem": "Anthem",
+                "scores.type.qasida": "Qasida",
+                "scores.type.monologue": "Monologue",
+                "scores.type.religious": "Religious",
+                "scores.page": "Page",
+                "scores.item1.title": "Batet'ala 'Alshan...",
+                "scores.item1.singer": "Ahmed Abdel Kader",
+                "scores.item2.title": "Nashid Al-Jamia",
+                "scores.item2.singer": "Umm Kulthum",
+                "scores.item3.title": "Ifrah Ya Qalbi",
+                "scores.item3.singer": "Umm Kulthum",
+                "scores.item4.title": "Salou Kouous...",
+                "scores.item4.singer": "Umm Kulthum",
+                "scores.item5.title": "Ayyuha Al-Na'im",
+                "scores.item5.singer": "Asmahan",
+                "scores.item6.title": "Ason Karamati",
+                "scores.item6.singer": "Umm Kulthum",
+                "scores.item7.title": "Misr Tatahaddath...",
+                "scores.item7.singer": "Umm Kulthum",
+                "scores.item8.title": "Ala Oudi",
+                "scores.item8.singer": "Riad Al Sunbati",
+                "scores.item9.title": "Ana Wahdi",
+                "scores.item9.singer": "Souad Mohamed",
+                "scores.item10.title": "Thalat Shohour...",
+                "scores.item10.singer": "Shadia",
+                "scores.item11.title": "Ilahi Ma A'zamak",
+                "scores.item11.singer": "Najat Al Saghira",
+                "scores.item12.title": "Ashwaq",
+                "scores.item12.singer": "Riad Al Sunbati",
+                "legacy.asmahan": "Asmahan",
+                "legacy.laila": "Laila Murad",
+                "legacy.warda": "Warda",
+                "legacy.halim": "Abdel Halim",
+                "legacy.fayza": "Fayza Ahmed",
+                "legacy.najat": "Najat Al Saghira",
+                "legacy.sabah": "Sabah",
+                "legacy.huda": "Huda Sultan",
+                "legacy.souad": "Souad Mohamed",
+                "legacy.saleh": "Saleh Abdel Hai",
+                "toast.loaded": "Loaded details for: "
+            },
+            ar: {
+                "nav.home": "الرئيسية",
+                "nav.bio": "السيرة الذاتية",
+                "nav.singer": "المطرب",
+                "nav.muse": "كوكب الشرق",
+                "nav.legacy": "الإرث",
+                "nav.compositions": "المؤلفات",
+                "hero.genius": "عبقري",
+                "hero.melody": "النغم العربي",
+                "hero.desc": "سيد العود، ومهندس القصيدة الكلاسيكية، والروح الكامنة وراء أعظم انتصارات أم كلثوم العاطفية.",
+                "hero.cta1": "اكتشف حياته",
+                "hero.cta2": "استمع",
+                "comp.subtitle": "أعمال آلية",
+                "comp.title": "مؤلفات موسيقية",
+                "comp.desc": "كما هو موثق في قائمة \"المقطوعات الموسيقية\"، قام رياض السنباطي بتأليف أعمال آلية عميقة تقف وحدها كروائع للعود والأوركسترا.",
+                "comp.ilaiha.title": "إليها",
+                "comp.ilaiha.desc": "\"إليها\" - مقطوعة موسيقية رومانسية وتأملية مدرجة برقم 36 في كتالوجه.",
+                "comp.longa.title": "لونجا رياض",
+                "comp.longa.desc": "ربما تكون أشهر مقطوعاته الآلية. تحفة فنية سريعة الإيقاع في مقام النهاوند (تُعرف أيضًا باسم لونجا سلطاني يكاه).",
+                "comp.amal.title": "أمل",
+                "comp.amal.desc": "\"أمل\" - تركيبة مبكرة تعكس التفاؤل والجمال الغنائي لأسلوبه.",
+                "comp.liqaa.title": "لقاء الحبيب",
+                "comp.liqaa.desc": "\"لقاء الحبيب\" - حوار موسيقي يجسد مشاعر اللقاء.",
+                "comp.nasini.title": "يا ناسيني",
+                "comp.nasini.desc": "\"يا ناسيني\" - اشتهرت كأغنية لشهرزاد، لكنها مدرجة كمقطوعة موسيقية مميزة في أرشيفه.",
+                "comp.ashwaq.title": "أشواق",
+                "comp.ashwaq.desc": "\"أشواق\" - غالبًا ما يؤديها السنباطي بنفسه على العود، وتعتبر هذه القطعة معيارًا للتعبير العاطفي في الموسيقى العربية.",
+                "comp.note": "* مرجع: قائمة المقطوعات الموسيقية لرياض السنباطي من كتاب \"التاريخ الفني\".",
+                "bio.subtitle": "البداية",
+                "bio.title": "من فارسكور إلى القاهرة",
+                "bio.p1": "ولد في <strong>30 نوفمبر 1906</strong>، في مدينة فارسكور بدمياط، وكان قدر رياض السنباطي مكتوبًا بالنوتات الموسيقية. كان والده مطربًا، وكان رياض الصغير يهرب غالبًا من المدرسة للاستماع إلى فرقة والده وهي تعزف.",
+                "bio.p2": "عندما فقد بصره مؤقتًا بسبب مرض في التاسعة من عمره، أصبحت الموسيقى رؤيته. أتقن العود ببراعة لدرجة أنه لُقب بـ <em>\"بلبل المنصورة\"</em>.",
+                "bio.p3": "على عكس معاصريه الذين سارعوا إلى التحديث من خلال الاقتباس المكثف من الموسيقى الكلاسيكية الغربية، ظل السنباطي حارسًا <strong>للهوية الشرقية</strong>. لقد قام بالتحديث من الداخل، وطور <em>التقاسيم</em> و<em>القصيدة</em> مع احترام المقام.",
+                "bio.nightingale.en": "The Nightingale",
+                "bio.nightingale.ar": "بلبل المنصورة",
+                "bio.stat1": "إجمالي الأعمال",
+                "bio.stat2": "جائزة اليونسكو",
+                "singer.subtitle": "النجم المتردد",
+                "singer.title": "الصوت الذهبي",
+                "singer.p1": "قبل أن يكون \"عبقري النغم\"، كان رياض السنباطي يُعرف بـ <strong>\"بلبل المنصورة\"</strong>. بامتلاكه صوتًا دافئًا وعاطفيًا، بدأ حياته المهنية في الغناء في عشرينيات القرن الماضي.",
+                "singer.p2": "على الرغم من موهبته الصوتية الهائلة، اختار عمدًا إعطاء الأولوية للتلحين، معتقدًا أن إرثه الحقيقي يكمن في تأليف الموسيقى للآخرين. ومع ذلك، ترك لنا جواهر صوتية نادرة تظهر براعته في العود وقدرته العاطفية العميقة.",
+                "singer.p3": "لعب دور البطولة في فيلم واحد فقط، <em>حبيب قلبي</em> (1952)، حيث غنى روائع مثل <strong>\"على عودي\"</strong>. في سنواته الأخيرة، سجل روائع شخصية مثل \"أشواق\" التي تظل مراجع لعزف العود والغناء.",
+                "singer.list_title": "غناء رياض",
+                "singer.list.ala": "على عودي",
+                "singer.list.ala.desc": "\"على عودي\" - المونولوج الشهير",
+                "singer.list.ashwaq": "أشواق",
+                "singer.list.ashwaq.desc": "\"أشواق\" - تحفة غنائية وآلية",
+                "singer.list.ilah": "إله الكون",
+                "singer.list.ilah.desc": "ابتهال ديني",
+                "singer.list.fajr": "فجر",
+                "singer.list.fajr.desc": "سُجل في الأربعينيات",
+                "muse.subtitle": "الشراكة الذهبية",
+                "muse.title": "السنباطي والست",
+                "muse.card1.title": "حارس القصيدة",
+                "muse.card1.desc": "بينما قدم ملحنون آخرون لأم كلثوم أغانٍ حديثة وأخف وزناً، عُهد للسنباطي بالقصائد العربية الكلاسيكية الثقيلة (*القصائد*). كان لديه قدرة فريدة على جعل قواعد اللغة العربية الصعبة تبدو لحنية وعاطفية.",
+                "muse.card2.title": "الأطلال",
+                "muse.card2.desc": "يعتبرها العديد من النقاد \"تاج الأغنية العربية\". صدرت عام 1966، ورسخت هذه التحفة إرثهم. فهي تجمع بين القوة والحنين والجمل الموسيقية المعقدة التي تدفع الجماهير إلى النشوة (الطرب).",
+                "muse.card2.cta": "اقرأ القصة",
+                "muse.card3.title": "أكثر من 200 أغنية",
+                "muse.card3.desc": "لحن لأم كلثوم أغانٍ أكثر من أي ملحن آخر. امتدت رحلتهم لعقود، من \"على بلد المحبوب\" في الثلاثينيات إلى \"ثورة الشك\" الروحية والروائع الدينية مثل \"نهج البردة\".",
+                "legacy.subtitle": "المجرة الموسيقية",
+                "legacy.title": "أساطير لحن لهم",
+                "legacy.desc": "إلى جانب شراكته التاريخية مع أم كلثوم، شكلت ألحان رياض السنباطي مسيرة أكثر الأصوات شهرة في العالم العربي. تمتد أعماله البالغ عددها 539 عبر الأجيال.",
+                "scores.subtitle": "من الأرشيف",
+                "scores.title": "كتاب: \"التاريخ الفني\"",
+                "scores.desc": "روائع ونوتات موسيقية تم تحليلها وتوثيقها في كتاب <em>\"التاريخ الفني للموسيقار رياض السنباطي\"</em> (1993).",
+                "works.subtitle": "ديسكغرافيا",
+                "works.title": "جواهر موسيقية",
+                "works.item1.title": "لونجا رياض",
+                "works.item1.desc": "مقطوعة آلية (عود)",
+                "works.item2.title": "رباعيات الخيام",
+                "works.item2.desc": "أم كلثوم",
+                "works.item3.title": "لحن الوفاء",
+                "works.item3.desc": "عبد الحليم حافظ",
+                "works.item4.title": "عودت عيني",
+                "works.item4.desc": "أم كلثوم",
+                "footer.desc": "الحفاظ على إرث أمير النغم العربي.",
+                "footer.archive": "الأرشيف",
+                "footer.gallery": "المعرض",
+                "footer.contact": "اتصل بنا",
+                "footer.copy": "&copy; 2024 تكريم رياض السنباطي. صمم باحترام للتراث.",
+                "scores.type.taqtuqa": "طقطوقة",
+                "scores.type.anthem": "نشيد",
+                "scores.type.qasida": "قصيدة",
+                "scores.type.monologue": "مونولوج",
+                "scores.type.religious": "ديني",
+                "scores.page": "صفحة",
+                "scores.item1.title": "بتتقلى علشان...",
+                "scores.item1.singer": "أحمد عبد القادر",
+                "scores.item2.title": "نشيد الجامعة",
+                "scores.item2.singer": "أم كلثوم",
+                "scores.item3.title": "إفرح يا قلبي",
+                "scores.item3.singer": "أم كلثوم",
+                "scores.item4.title": "سلوا كؤوس...",
+                "scores.item4.singer": "أم كلثوم",
+                "scores.item5.title": "أيها النائم",
+                "scores.item5.singer": "أسمهان",
+                "scores.item6.title": "أصون كرامتي",
+                "scores.item6.singer": "أم كلثوم",
+                "scores.item7.title": "مصر تتحدث...",
+                "scores.item7.singer": "أم كلثوم",
+                "scores.item8.title": "على عودي",
+                "scores.item8.singer": "رياض السنباطي",
+                "scores.item9.title": "أنا وحدي",
+                "scores.item9.singer": "سعاد محمد",
+                "scores.item10.title": "ثلاث شهور...",
+                "scores.item10.singer": "شادية",
+                "scores.item11.title": "إلهي ما أعظمك",
+                "scores.item11.singer": "نجاة الصغيرة",
+                "scores.item12.title": "أشواق",
+                "scores.item12.singer": "رياض السنباطي",
+                "legacy.asmahan": "أسمهان",
+                "legacy.laila": "ليلى مراد",
+                "legacy.warda": "وردة",
+                "legacy.halim": "عبد الحليم",
+                "legacy.fayza": "فايزة أحمد",
+                "legacy.najat": "نجاة الصغيرة",
+                "legacy.sabah": "صباح",
+                "legacy.huda": "هدى سلطان",
+                "legacy.souad": "سعاد محمد",
+                "legacy.saleh": "صالح عبد الحي",
+                "toast.loaded": "تم تحميل تفاصيل: "
+            }
+        };
+
+        let currentLang = 'en';
+
+        function toggleLanguage() {
+            currentLang = currentLang === 'en' ? 'ar' : 'en';
+            setLanguage(currentLang);
+        }
+
+        function setLanguage(lang) {
+            document.documentElement.lang = lang;
+            document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+            
+            // Update button text
+            const btnText = document.getElementById('lang-btn-text');
+            if(btnText) btnText.innerText = lang === 'ar' ? 'EN' : 'AR';
+
+            const mobileBtnText = document.getElementById('mobile-lang-btn-text');
+            if(mobileBtnText) mobileBtnText.innerText = lang === 'ar' ? 'Switch to English' : 'Switch to Arabic';
+
+            // Update text content
+            const elements = document.querySelectorAll('[data-i18n]');
+            elements.forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations[lang][key]) {
+                    el.innerHTML = translations[lang][key];
+                }
+            });
+            
+            // Toggle font classes
+            if (lang === 'ar') {
+                document.body.classList.add('font-arabic');
+                document.body.classList.remove('font-body');
+            } else {
+                document.body.classList.remove('font-arabic');
+                document.body.classList.add('font-body');
+            }
+        }
+    </script>
+</body>
+</html>
