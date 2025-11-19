@@ -51,7 +51,7 @@ const OudScene = () => {
             // Function to update model based on screen size
             const updateModelForScreenSize = () => {
                 const isMobile = window.innerWidth < 768;
-                const scale = isMobile ? 4.5 : 5;
+                const scale = isMobile ? 4 : 5;
                 model.scale.set(scale, scale, scale);
                 model.position.y = isMobile ? -2 : -3;
                 model.position.x = isMobile ? 0 : 0;
@@ -101,9 +101,9 @@ const OudScene = () => {
         
         // Update model position and scale if it exists
         if (model) {
-            const scale = isMobile ? 1.5 : 5;
+            const scale = isMobile ? 3 : 5;
             model.scale.set(scale, scale, scale);
-            model.position.y = isMobile ? -0.5 : -3;
+            model.position.y = isMobile ? -1.5 : -3;
             model.position.x = isMobile ? 0 : 0;
         }
     };
