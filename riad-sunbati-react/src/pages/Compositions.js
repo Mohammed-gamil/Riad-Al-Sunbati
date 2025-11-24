@@ -89,9 +89,9 @@ const Compositions = () => {
                 <Music size={32} className="text-amber-500" />
               </div>
 
-              <h4 className="text-3xl md:text-4xl font-heading text-transparent bg-clip-text bg-gradient-to-r from-amber-200 to-amber-500 mb-6">
+              <h3 className="text-3xl md:text-4xl font-heading text-transparent bg-clip-text bg-gradient-to-r from-amber-200 to-amber-500 mb-6">
                 Longa Riad - The Masterpiece
-              </h4>
+              </h3>
 
               <p className="text-slate-300 max-w-3xl mx-auto leading-relaxed mb-8 text-lg font-light">
                 Perhaps his most celebrated instrumental work, Longa Riad showcases Sunbati's virtuosic command of the Oud. The piece has become a benchmark for aspiring musicians and a testament to his technical brilliance.

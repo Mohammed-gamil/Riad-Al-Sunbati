@@ -85,6 +85,7 @@ const Singer = () => {
                       <Button
                         size="icon"
                         className="w-10 h-10 rounded-full bg-amber-500/10 text-amber-500 group-hover/item:bg-amber-500 group-hover/item:text-slate-900 transition-all duration-300 shadow-lg group-hover/item:shadow-amber-500/20"
+                        aria-label={`Play ${song.title}`}
                       >
                         <Play className="w-4 h-4 ml-0.5" />
                       </Button>
