@@ -6,6 +6,7 @@ export const translations = {
     "nav.muse": "The Muse",
     "nav.legacy": "Legacy",
     "nav.compositions": "Compositions",
+    "nav.bibliography": "Bibliography",
     "hero.title": "The Genius of Melody",
     "hero.arabicTitle": "عبقري النغم",
     "hero.subtitle": "A master of the Oud, the architect of the classical Poem, and the soul behind Umm Kulthum's greatest emotional triumphs.",
@@ -140,7 +141,14 @@ export const translations = {
     "legacy.huda": "Huda Sultan",
     "legacy.souad": "Souad Mohamed",
     "legacy.saleh": "Saleh Abdel Hai",
-    "toast.loaded": "Loaded details for: "
+    "toast.loaded": "Loaded details for: ",
+    "biblio.badge": "The Biography",
+    "biblio.title": "The Life Story of Riad Al Sunbati",
+    "biblio.desc": "The text covers the life story of the musician Riad Al Sunbati, as narrated by his daughter-in-law, Suzan Abdel Majid Al-Fiqi, who recorded his conversations based on his desire to be told to his grandchildren.",
+    "biblio.loading": "Preparing the book...",
+    "biblio.error": "Error loading the book.",
+    "biblio.hint": "You can flip pages by clicking or dragging",
+    "biblio.download": "Download Full Book"
   },
   ar: {
     "nav.home": "الرئيسية",
@@ -149,6 +157,7 @@ export const translations = {
     "nav.muse": "كوكب الشرق",
     "nav.legacy": "الإرث",
     "nav.compositions": "المؤلفات",
+    "nav.bibliography": "المكتبة",
     "hero.title": "عبقري النغم",
     "hero.arabicTitle": "رياض السنباطي",
     "hero.subtitle": "سيد العود، ومهندس القصيدة الكلاسيكية، والروح الكامنة وراء أعظم انتصارات أم كلثوم العاطفية.",
@@ -283,6 +292,13 @@ export const translations = {
     "legacy.huda": "هدى سلطان",
     "legacy.souad": "سعاد محمد",
     "legacy.saleh": "صالح عبد الحي",
-    "toast.loaded": "تم تحميل تفاصيل: "
+    "toast.loaded": "تم تحميل تفاصيل: ",
+    "biblio.badge": "السيرة الذاتية",
+    "biblio.title": "قصة حياة رياض السنباطي",
+    "biblio.desc": "يتناول النص قصة حياة الموسيقار رياض السنباطي، كما ترويها زوجة ابنه، سوزان عبد المجيد الفقي، التي سجلت أحاديثه بناءً على رغبته في أن تُحكى لأحفاده.",
+    "biblio.loading": "جاري تحضير الكتاب...",
+    "biblio.error": "حدث خطأ أثناء تحميل الكتاب.",
+    "biblio.hint": "يمكنك تقليب الصفحات بالنقر أو السحب",
+    "biblio.download": "تحميل الكتاب كاملاً"
   }
 };

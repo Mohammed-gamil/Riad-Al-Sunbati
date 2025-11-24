@@ -9,6 +9,7 @@ import Singer from './pages/Singer';
 import Muse from './pages/Muse';
 import Legacy from './pages/Legacy';
 import Compositions from './pages/Compositions';
+import Bibliography from './pages/Bibliography';
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
               <Route path="/muse" element={<Muse />} />
               <Route path="/legacy" element={<Legacy />} />
               <Route path="/compositions" element={<Compositions />} />
+              <Route path="/bibliography" element={<Bibliography />} />
             </Routes>
           </main>
           <Footer />

@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../context/LanguageContext';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const Navbar = () => {
   const { currentLang, toggleLanguage, t } = useLanguage();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -16,33 +19,49 @@ const Navbar = () => {
   }, []);
 
   const navLinks = [
-    { to: '#home', label: t('nav.home') },
-    { to: '#biography', label: t('nav.bio') },
-    { to: '#singer', label: t('nav.singer') },
-    { to: '#muse', label: t('nav.muse') },
-    { to: '#legacy', label: t('nav.legacy') },
-    { to: '#compositions', label: t('nav.compositions') },
+    { to: '/#home', label: t('nav.home') },
+    { to: '/#biography', label: t('nav.bio') },
+    { to: '/#singer', label: t('nav.singer') },
+    { to: '/#muse', label: t('nav.muse') },
+    { to: '/#legacy', label: t('nav.legacy') },
+    { to: '/#compositions', label: t('nav.compositions') },
+    { to: '/bibliography', label: t('nav.bibliography') },
   ];
 
   const handleNavClick = (e, href) => {
     e.preventDefault();
     setIsMobileMenuOpen(false);
-    
-    const element = document.querySelector(href);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
+
+    if (href.startsWith('/#')) {
+      const hash = href.substring(1); // remove '/'
+      if (location.pathname !== '/') {
+        navigate('/');
+        setTimeout(() => {
+          const element = document.querySelector(hash);
+          if (element) {
+            element.scrollIntoView({ behavior: 'smooth' });
+          }
+        }, 100);
+      } else {
+        const element = document.querySelector(hash);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' });
+        }
+      }
+    } else {
+      navigate(href);
+      window.scrollTo(0, 0);
     }
   };
 
   return (
     <nav
-      className={`fixed w-full z-50 bg-slate-900/80 backdrop-blur-md border-b border-amber-700/30 transition-all duration-300 ${
-        isScrolled ? 'shadow-lg bg-slate-900/95' : ''
-      }`}
+      className={`fixed w-full z-50 bg-slate-900/80 backdrop-blur-md border-b border-amber-700/30 transition-all duration-300 ${isScrolled ? 'shadow-lg bg-slate-900/95' : ''
+        }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20">
-          <a href="#home" onClick={(e) => handleNavClick(e, '#home')} className="flex-shrink-0 flex items-center gap-3">
+          <a href="/#home" onClick={(e) => handleNavClick(e, '/#home')} className="flex-shrink-0 flex items-center gap-3">
             <div className="bg-amber-600 p-2 rounded-full text-slate-900">
               <svg
                 className="w-6 h-6"
@@ -76,9 +95,8 @@ const Navbar = () => {
                   key={link.to}
                   href={link.to}
                   onClick={(e) => handleNavClick(e, link.to)}
-                  className={`hover:text-amber-400 transition-colors duration-300 font-medium tracking-widest ${
-                    currentLang === 'ar' ? 'text-base' : 'text-sm uppercase'
-                  }`}
+                  className={`hover:text-amber-400 transition-colors duration-300 font-medium tracking-widest ${currentLang === 'ar' ? 'text-base' : 'text-sm uppercase'
+                    }`}
                 >
                   {link.label}
                 </a>
