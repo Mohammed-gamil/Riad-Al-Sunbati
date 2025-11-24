@@ -93,8 +93,8 @@ const Home = () => {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-amber-900/20 via-slate-950 to-slate-950 pointer-events-none"></div>
         <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-5 pointer-events-none"></div>
 
-        {/* 3D Oud Scene - Lazy Loaded */}
-        <div className="pointer-events-none absolute inset-0">
+        {/* 3D Oud Scene - Lazy Loaded - Desktop Only */}
+        <div className="hidden md:block pointer-events-none absolute inset-0">
           <Suspense fallback={<div className="w-full h-full" />}>
             <OudScene />
           </Suspense>
