@@ -64,6 +64,7 @@ const Muse = () => {
                   src="/sunbati-ummkulthum.jpg"
                   alt="Riad Al Sunbati and Umm Kulthum"
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 grayscale group-hover:grayscale-0"
+                  loading="lazy"
                 />
               </div>
 

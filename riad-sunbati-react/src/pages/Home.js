@@ -1,13 +1,21 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, Suspense, lazy } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { useNavigate } from 'react-router-dom';
-import OudScene from '../components/OudScene';
-import Biography from './Biography';
-import Legacy from './Legacy';
-import Singer from './Singer';
-import Muse from './Muse';
-import Compositions from './Compositions';
 import { BookOpen, Music, Mic, Award, Star, Calendar, Clock, User } from 'lucide-react';
+
+// Lazy load heavy components
+const OudScene = lazy(() => import('../components/OudScene'));
+const Biography = lazy(() => import('./Biography'));
+const Legacy = lazy(() => import('./Legacy'));
+const Singer = lazy(() => import('./Singer'));
+const Muse = lazy(() => import('./Muse'));
+const Compositions = lazy(() => import('./Compositions'));
+
+const SectionLoader = () => (
+  <div className="py-24 flex justify-center items-center bg-slate-950">
+    <div className="w-8 h-8 border-2 border-amber-500 border-t-transparent rounded-full animate-spin"></div>
+  </div>
+);
 
 const Home = () => {
   const { t, currentLang } = useLanguage();
@@ -85,9 +93,11 @@ const Home = () => {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-amber-900/20 via-slate-950 to-slate-950 pointer-events-none"></div>
         <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-5 pointer-events-none"></div>
 
-        {/* 3D Oud Scene */}
+        {/* 3D Oud Scene - Lazy Loaded */}
         <div className="pointer-events-none absolute inset-0">
-          <OudScene />
+          <Suspense fallback={<div className="w-full h-full" />}>
+            <OudScene />
+          </Suspense>
         </div>
 
         <div className="vintage-overlay"></div>
@@ -255,11 +265,21 @@ const Home = () => {
         </div>
       </section>
 
-      <Biography />
-      <Singer />
-      <Muse />
-      <Legacy />
-      <Compositions />
+      <Suspense fallback={<SectionLoader />}>
+        <Biography />
+      </Suspense>
+      <Suspense fallback={<SectionLoader />}>
+        <Singer />
+      </Suspense>
+      <Suspense fallback={<SectionLoader />}>
+        <Muse />
+      </Suspense>
+      <Suspense fallback={<SectionLoader />}>
+        <Legacy />
+      </Suspense>
+      <Suspense fallback={<SectionLoader />}>
+        <Compositions />
+      </Suspense>
     </div>
   );
 };
