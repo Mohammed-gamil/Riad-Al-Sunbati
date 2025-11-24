@@ -195,6 +195,7 @@ const Home = () => {
               href="#biography"
               onClick={(e) => scrollToSection(e, '#biography')}
               className="group bg-slate-800/30 p-8 rounded-2xl border border-amber-500/10 hover:border-amber-500/40 transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_10px_40px_-10px_rgba(217,119,6,0.1)] relative overflow-hidden"
+              aria-label={`Go to ${t('nav.bio')} section`}
             >
               <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
               <div className="text-amber-500 mb-6 bg-amber-900/20 w-16 h-16 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-500 border border-amber-500/20">
@@ -213,6 +214,7 @@ const Home = () => {
               href="#singer"
               onClick={(e) => scrollToSection(e, '#singer')}
               className="group bg-slate-800/30 p-8 rounded-2xl border border-amber-500/10 hover:border-amber-500/40 transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_10px_40px_-10px_rgba(217,119,6,0.1)] relative overflow-hidden"
+              aria-label={`Go to ${t('nav.singer')} section`}
             >
               <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
               <div className="text-amber-500 mb-6 bg-amber-900/20 w-16 h-16 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-500 border border-amber-500/20">
@@ -231,6 +233,7 @@ const Home = () => {
               href="#legacy"
               onClick={(e) => scrollToSection(e, '#legacy')}
               className="group bg-slate-800/30 p-8 rounded-2xl border border-amber-500/10 hover:border-amber-500/40 transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_10px_40px_-10px_rgba(217,119,6,0.1)] relative overflow-hidden"
+              aria-label={`Go to ${t('nav.legacy')} section`}
             >
               <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
               <div className="text-amber-500 mb-6 bg-amber-900/20 w-16 h-16 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-500 border border-amber-500/20">

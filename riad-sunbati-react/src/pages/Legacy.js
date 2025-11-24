@@ -58,9 +58,9 @@ const Legacy = () => {
                       <Star className="w-8 h-8 text-amber-500/50 group-hover:text-amber-400 transition-colors" />
                     </div>
                   </div>
-                  <h4 className="font-heading text-lg text-slate-300 group-hover:text-amber-400 transition-colors">
+                  <h3 className="font-heading text-lg text-slate-300 group-hover:text-amber-400 transition-colors">
                     {artist.name}
-                  </h4>
+                  </h3>
                 </CardContent>
               </Card>
             </div>

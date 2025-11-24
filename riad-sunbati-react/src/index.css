@@ -84,10 +84,12 @@
       opacity: 1;
       transform: translateY(0) rotate(0deg) scale(1);
     }
+
     50% {
       opacity: 0.8;
       transform: translateY(-50px) rotate(180deg) scale(1.2);
     }
+
     100% {
       opacity: 0;
       transform: translateY(-120px) rotate(360deg) scale(0.3);
@@ -115,9 +117,12 @@
   }
 
   @keyframes glow {
-    0%, 100% {
+
+    0%,
+    100% {
       box-shadow: 0 0 5px rgba(217, 119, 6, 0.2), 0 0 10px rgba(217, 119, 6, 0.1);
     }
+
     50% {
       box-shadow: 0 0 20px rgba(217, 119, 6, 0.4), 0 0 30px rgba(217, 119, 6, 0.2), 0 0 40px rgba(217, 119, 6, 0.1);
     }

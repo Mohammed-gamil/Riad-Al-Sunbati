@@ -58,8 +58,8 @@ const Navbar = () => {
   return (
     <nav
       className={`fixed w-full z-50 transition-all duration-500 ${isScrolled
-          ? 'bg-slate-950/80 backdrop-blur-xl border-b border-amber-500/10 py-2'
-          : 'bg-transparent py-6'
+        ? 'bg-slate-950/80 backdrop-blur-xl border-b border-amber-500/10 py-2'
+        : 'bg-transparent py-6'
         }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -105,6 +105,7 @@ const Navbar = () => {
             <button
               onClick={toggleLanguage}
               className="flex items-center gap-2 px-4 py-2 rounded-full text-amber-500 hover:bg-amber-500/10 transition-colors font-bold text-sm"
+              aria-label={currentLang === 'ar' ? 'Switch to English' : 'Switch to Arabic'}
             >
               <Globe size={16} />
               <span>{currentLang === 'ar' ? 'EN' : 'AR'}</span>
@@ -116,6 +117,7 @@ const Navbar = () => {
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className="p-2 text-slate-300 hover:text-amber-500 transition-colors"
+              aria-label={isMobileMenuOpen ? 'Close menu' : 'Open menu'}
             >
               {isMobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
             </button>
@@ -147,6 +149,7 @@ const Navbar = () => {
                 setIsMobileMenuOpen(false);
               }}
               className="flex items-center justify-center gap-3 w-full py-4 bg-slate-900 rounded-xl border border-amber-500/20 text-amber-500 font-bold"
+              aria-label={currentLang === 'ar' ? 'Switch to English' : 'Switch to Arabic'}
             >
               <Globe size={20} />
               {currentLang === 'ar' ? 'Switch to English' : 'التبديل للعربية'}
