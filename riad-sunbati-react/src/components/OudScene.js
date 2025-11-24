@@ -2,53 +2,77 @@ import React, { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader';
+import { KTX2Loader } from 'three/examples/jsm/loaders/KTX2Loader';
+import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js';
+import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 
 const OudScene = () => {
   const containerRef = useRef(null);
+  const rendererRef = useRef(null);
+  const frameIdRef = useRef(null);
 
   useEffect(() => {
     if (!containerRef.current) return;
 
     const container = containerRef.current;
     
+    // Renderer setup with performance optimizations
+    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // Cap pixel ratio
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1;
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    
+    container.appendChild(renderer.domElement);
+    rendererRef.current = renderer;
+
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-    
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    container.appendChild(renderer.domElement);
+    camera.position.z = 5;
 
-    // Lights
+    // Environment setup (PMREM) for realistic lighting
+    const pmremGenerator = new THREE.PMREMGenerator(renderer);
+    pmremGenerator.compileEquirectangularShader();
+    const environment = new RoomEnvironment();
+    scene.environment = pmremGenerator.fromScene(environment).texture;
+    scene.environmentIntensity = 0.5; // Reduce env brightness to let yellow light pop
+    environment.dispose();
+    pmremGenerator.dispose();
+
+    // Lights - Tuned for "Yellow/Golden" look
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
     scene.add(ambientLight);
     
-    const directionalLight = new THREE.DirectionalLight(0xffaa00, 0.8); // Golden light
+    // Strong Golden Light
+    const directionalLight = new THREE.DirectionalLight(0xffaa00, 3.0); 
     directionalLight.position.set(5, 5, 5);
     scene.add(directionalLight);
 
-    // Set camera position
-    camera.position.z = 5;
+    // Loaders setup
+    const ktx2Loader = new KTX2Loader()
+        .setTranscoderPath(`https://unpkg.com/three@0.181.2/examples/jsm/libs/basis/`)
+        .detectSupport(renderer);
 
-    const loader = new GLTFLoader();
-    
-    // Setup DRACO loader for compressed models
     const dracoLoader = new DRACOLoader();
     dracoLoader.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.6/');
     dracoLoader.setDecoderConfig({ type: 'js' });
+
+    const loader = new GLTFLoader();
     loader.setDRACOLoader(dracoLoader);
+    loader.setKTX2Loader(ktx2Loader);
+    loader.setMeshoptDecoder(MeshoptDecoder);
     
-    // Add more detailed logging
-    console.log('Attempting to load oud.glb...');
+    console.log('Attempting to load oud-optimized.glb...');
     
     let model = null;
     
     loader.load(
-        '/oud.glb', // Path to model in public folder
+        '/oud-optimized.glb',
         function (gltf) {
             console.log('Model loaded successfully:', gltf);
             model = gltf.scene;
             
-            // Function to update model based on screen size
             const updateModelForScreenSize = () => {
                 const isMobile = window.innerWidth < 768;
                 const scale = isMobile ? 4 : 5;
@@ -61,45 +85,36 @@ const OudScene = () => {
             model.rotation.y = Math.PI / 4;
             
             scene.add(model);
-            console.log('Model added to scene');
             
-            // Animation function
-            const animateModel = function() {
-                requestAnimationFrame(animateModel);
-                
-                // Base rotation only
-                model.rotation.y += 0.0095;
-
-                renderer.render(scene, camera);
-            };
-            animateModel();
+            // Start animation loop
+            animate();
         },
-        function (xhr) {
-            if (xhr.lengthComputable) {
-                const percentComplete = (xhr.loaded / xhr.total * 100).toFixed(2);
-                console.log(`Loading: ${percentComplete}% (${xhr.loaded} / ${xhr.total} bytes)`);
-            } else {
-                console.log(`Loading: ${xhr.loaded} bytes loaded`);
-            }
-        },
+        undefined,
         function (error) {
             console.error('Error loading GLB file:', error);
-            console.error('Error details:', {
-                message: error.message,
-                stack: error.stack,
-                type: error.type
-            });
         }
     );
 
+    const animate = () => {
+        frameIdRef.current = requestAnimationFrame(animate);
+        
+        if (model) {
+            model.rotation.y += 0.0095;
+        }
+
+        renderer.render(scene, camera);
+    };
+
     // Handle Resize
     const handleResize = () => {
-        const isMobile = window.innerWidth < 768;
-        camera.aspect = window.innerWidth / window.innerHeight;
-        camera.updateProjectionMatrix();
-        renderer.setSize(window.innerWidth, window.innerHeight);
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+        const isMobile = width < 768;
         
-        // Update model position and scale if it exists
+        camera.aspect = width / height;
+        camera.updateProjectionMatrix();
+        renderer.setSize(width, height);
+        
         if (model) {
             const scale = isMobile ? 3 : 5;
             model.scale.set(scale, scale, scale);
@@ -113,12 +128,28 @@ const OudScene = () => {
     // Cleanup
     return () => {
       window.removeEventListener('resize', handleResize);
+      cancelAnimationFrame(frameIdRef.current);
       
-      if (container && renderer.domElement && renderer.domElement.parentNode === container) {
+      if (container && renderer.domElement) {
         container.removeChild(renderer.domElement);
       }
       
+      // Dispose resources
+      scene.traverse((object) => {
+          if (object.geometry) object.geometry.dispose();
+          if (object.material) {
+              if (Array.isArray(object.material)) {
+                  object.material.forEach(material => material.dispose());
+              } else {
+                  object.material.dispose();
+              }
+          }
+      });
+
+      if (scene.environment) scene.environment.dispose();
       renderer.dispose();
+      ktx2Loader.dispose();
+      dracoLoader.dispose();
     };
   }, []);
 
